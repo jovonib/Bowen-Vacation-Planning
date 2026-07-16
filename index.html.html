@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japan 2027 — Trip Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --paper:#F1EEE4;
+  --paper-card:#FBF9F3;
+  --ink:#1C2541;
+  --ink-soft:#5B6478;
+  --indigo:#2F4880;
+  --indigo-soft:#DCE3F0;
+  --persimmon:#C1592E;
+  --persimmon-soft:#F3DED1;
+  --suica:#1E7A50;
+  --suica-soft:#D8EBE0;
+  --line:#CFC8B5;
+  --alert:#A6303B;
+  --gold:#B08D3E;
+  --shadow: 0 1px 2px rgba(28,37,65,0.06), 0 4px 14px rgba(28,37,65,0.06);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'IBM Plex Sans',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding:0 0 60px 0;
+}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+
+/* ---------- HEADER (boarding pass) ---------- */
+.pass{
+  background:var(--indigo);
+  color:#fff;
+  margin-top:20px;
+  border-radius:14px;
+  padding:26px 26px 20px 26px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.pass::after{
+  content:"";
+  position:absolute;
+  right:-40px;top:-60px;
+  width:220px;height:220px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%);
+}
+.pass-route{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:#C9D5EE;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+}
+.pass-route .dot{width:4px;height:4px;background:#C9D5EE;border-radius:50%;}
+.pass h1{
+  font-family:'Shippori Mincho',serif;
+  font-weight:700;
+  font-size:34px;
+  margin:0 0 6px 0;
+  letter-spacing:0.01em;
+}
+.pass-sub{color:#D6DEF0;font-size:14.5px;margin-bottom:18px;}
+.pass-stats{display:flex;flex-wrap:wrap;gap:22px;border-top:1px dashed rgba(255,255,255,0.28);padding-top:14px;}
+.pass-stat{min-width:90px;}
+.pass-stat .num{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;}
+.pass-stat .lbl{font-size:11px;color:#B9C6E5;text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;}
+
+/* ---------- TAB NAV (line map style) ---------- */
+.tabs{
+  display:flex;
+  margin-top:26px;
+  border-bottom:2px solid var(--line);
+  gap:2px;
+}
+.tab-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:'IBM Plex Sans',sans-serif;
+  font-weight:600;font-size:14px;
+  color:var(--ink-soft);
+  padding:12px 16px 14px 16px;
+  position:relative;
+  display:flex;align-items:center;gap:8px;
+}
+.tab-btn .stop{
+  width:9px;height:9px;border-radius:50%;
+  background:var(--line);
+  border:2px solid var(--paper);
+  outline:2px solid var(--line);
+}
+.tab-btn.active{color:var(--ink);}
+.tab-btn.active .stop{background:var(--persimmon);outline-color:var(--persimmon);}
+.tab-btn.active::after{
+  content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--persimmon);
+}
+.tab-btn:hover{color:var(--ink);}
+
+.panel{display:none;padding-top:26px;}
+.panel.active{display:block;}
+
+/* ---------- OVERVIEW ---------- */
+.card-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px;}
+.info-card{
+  background:var(--paper-card);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:16px 18px;
+  box-shadow:var(--shadow);
+}
+.info-card h3{
+  margin:0 0 8px 0;font-family:'Shippori Mincho',serif;font-size:16px;color:var(--indigo);
+}
+.info-card p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+.info-card .big{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--ink);}
+
+/* ---------- ITINERARY: line-map ---------- */
+.line-map{position:relative;padding-left:34px;}
+.line-map::before{
+  content:"";position:absolute;left:10px;top:6px;bottom:6px;width:3px;
+  background:linear-gradient(var(--indigo),var(--persimmon));
+  border-radius:2px;
+}
+.day{position:relative;margin-bottom:34px;}
+.day-stop{
+  position:absolute;left:-34px;top:2px;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--paper);
+  border:3px solid var(--indigo);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;color:var(--indigo);
+}
+.day.kansai .day-stop{border-color:var(--persimmon);color:var(--persimmon);}
+.day-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+.day-head h2{font-family:'Shippori Mincho',serif;font-size:19px;margin:0;color:var(--ink);}
+.day-date{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);}
+.day-tag{
+  font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;
+  padding:2px 8px;border-radius:20px;background:var(--indigo-soft);color:var(--indigo);
+}
+.day.kansai .day-tag{background:var(--persimmon-soft);color:var(--persimmon);}
+.day-summary{font-size:13.5px;color:var(--ink-soft);margin:6px 0 14px 0;line-height:1.5;}
+
+/* activity photo cards */
+.activities{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.act-card{
+  background:var(--paper-card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  display:flex;flex-direction:column;
+}
+.act-photo{
+  width:100%;height:128px;object-fit:cover;display:block;background:var(--indigo-soft);
+}
+.act-visual{
+  width:100%;height:128px;display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(rgba(47,72,128,0.16) 1.4px, transparent 1.4px) 0 0/14px 14px,
+    var(--indigo-soft);
+  color:var(--indigo);
+}
+.day.kansai .act-visual{
+  background:
+    radial-gradient(rgba(193,89,46,0.18) 1.4px, transparent 1.4px) 0 0/14px 14px,
+    var(--persimmon-soft);
+  color:var(--persimmon);
+}
+.act-visual svg{width:46px;height:46px;}
+.act-body{padding:12px 13px 13px 13px;flex:1;display:flex;flex-direction:column;}
+.act-name{font-weight:600;font-size:14px;margin:0 0 4px 0;}
+.act-blurb{font-size:12.5px;color:var(--ink-soft);line-height:1.45;margin:0 0 10px 0;flex:1;}
+.act-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.decision{display:flex;gap:4px;}
+.dbtn{
+  border:1px solid var(--line);background:var(--paper);
+  border-radius:7px;width:30px;height:28px;cursor:pointer;
+  font-size:14px;display:flex;align-items:center;justify-content:center;
+  color:var(--ink-soft);
+}
+.dbtn:hover{border-color:var(--ink-soft);}
+.dbtn.sel-keep.on{background:var(--suica);border-color:var(--suica);color:#fff;}
+.dbtn.sel-maybe.on{background:var(--gold);border-color:var(--gold);color:#fff;}
+.dbtn.sel-skip.on{background:var(--alert);border-color:var(--alert);color:#fff;}
+.act-link{
+  font-size:11.5px;font-weight:600;color:var(--indigo);text-decoration:none;
+  white-space:nowrap;
+}
+.day.kansai .act-link{color:var(--persimmon);}
+.act-link:hover{text-decoration:underline;}
+
+.day-meta{display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--ink-soft);flex-wrap:wrap;}
+.day-meta b{color:var(--ink);}
+.day-tip{
+  margin-top:10px;font-size:12.5px;color:var(--indigo);background:var(--indigo-soft);
+  border-radius:8px;padding:8px 12px;
+}
+.day.kansai .day-tip{color:var(--persimmon);background:var(--persimmon-soft);}
+
+/* ---------- BUDGET ---------- */
+.budget-toggle{display:flex;gap:8px;margin-bottom:20px;}
+.toggle-btn{
+  border:1px solid var(--line);background:var(--paper-card);border-radius:8px;
+  padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-soft);
+}
+.toggle-btn.active{background:var(--indigo);border-color:var(--indigo);color:#fff;}
+.budget-total{
+  font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;margin:4px 0 2px 0;
+}
+.budget-total-lbl{font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:18px;}
+.bars{display:flex;flex-direction:column;gap:10px;margin-bottom:26px;}
+.bar-row{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:10px;font-size:12.5px;}
+.bar-track{background:var(--indigo-soft);border-radius:5px;height:14px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--indigo);border-radius:5px;}
+.bar-amt{text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);}
+table.budget-table{width:100%;border-collapse:collapse;font-size:13px;}
+table.budget-table th{
+  text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);
+  border-bottom:1px solid var(--line);padding:6px 8px;
+}
+table.budget-table td{padding:9px 8px;border-bottom:1px solid var(--line);}
+table.budget-table tr:last-child td{border-bottom:none;font-weight:700;}
+.amt-col{text-align:right;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+
+/* ---------- SAVINGS ---------- */
+.savings-summary{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:22px;}
+.sav-stat .num{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--suica);}
+.sav-stat .lbl{font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.05em;}
+.progress-outer{background:var(--indigo-soft);border-radius:8px;height:20px;overflow:hidden;margin-bottom:6px;position:relative;}
+.progress-inner{height:100%;background:var(--suica);border-radius:8px 0 0 8px;transition:width .3s;}
+.progress-marks{position:relative;height:14px;margin-bottom:20px;font-size:10px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+.progress-marks span{position:absolute;transform:translateX(-50%);}
+.periods{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto;padding-right:4px;border:1px solid var(--line);border-radius:10px;background:var(--paper-card);}
+.period-row{
+  display:grid;grid-template-columns:26px 90px 1fr 70px;align-items:center;gap:10px;
+  padding:9px 12px;font-size:12.5px;border-bottom:1px solid var(--line);
+}
+.period-row:last-child{border-bottom:none;}
+.pchk{
+  width:20px;height:20px;border-radius:5px;border:2px solid var(--line);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;background:var(--paper);
+  font-size:12px;color:#fff;
+}
+.pchk.on{background:var(--suica);border-color:var(--suica);}
+.pdate{font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);}
+.pmilestone{font-size:11px;font-weight:600;color:var(--gold);}
+.pamt{text-align:right;font-family:'IBM Plex Mono',monospace;}
+
+.footnote{font-size:11.5px;color:var(--ink-soft);margin-top:16px;line-height:1.5;}
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+
+@media (max-width:600px){
+  .pass h1{font-size:26px;}
+  .bar-row{grid-template-columns:110px 1fr 70px;}
+  .period-row{grid-template-columns:22px 74px 1fr 60px;font-size:11.5px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="pass">
+    <div class="pass-route">TPA <span class="dot"></span> HND · KIX <span class="dot"></span> TPA · OPEN-JAW</div>
+    <h1>Japan, September 2027</h1>
+    <div class="pass-sub">Tokyo (5N) → Osaka (4N) with day trips to Kyoto &amp; Nara · 2 travelers</div>
+    <div class="pass-stats">
+      <div class="pass-stat"><div class="num">11</div><div class="lbl">Days</div></div>
+      <div class="pass-stat"><div class="num">9</div><div class="lbl">Hotel nights</div></div>
+      <div class="pass-stat"><div class="num">3</div><div class="lbl">Cities</div></div>
+      <div class="pass-stat"><div class="num">Sep 20</div><div class="lbl">Departure</div></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overview"><span class="stop"></span>Overview</button>
+    <button class="tab-btn" data-tab="itinerary"><span class="stop"></span>Itinerary</button>
+    <button class="tab-btn" data-tab="budget"><span class="stop"></span>Budget</button>
+    <button class="tab-btn" data-tab="savings"><span class="stop"></span>Savings</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div class="card-row">
+      <div class="info-card">
+        <h3>Weather window</h3>
+        <p>Late Sept: 75–80°F, lower humidity, typhoon risk dropping sharply. Warm, not cold — as requested.</p>
+      </div>
+      <div class="info-card">
+        <h3>Flights</h3>
+        <p>Delta TPA→HND (in), United KIX→TPA (out) — open-jaw, priced as two one-ways. Premium Economy base case.</p>
+      </div>
+      <div class="info-card">
+        <h3>Stays</h3>
+        <p>JW Marriott Tokyo (Takanawa, 5N) → The Osaka Station Hotel, Autograph Collection (4N).</p>
+      </div>
+    </div>
+    <div class="card-row">
+      <div class="info-card">
+        <h3>Total, Premium Economy</h3>
+        <div class="big">$11,728 – $15,898</div>
+        <p style="margin-top:6px;">For two travelers, all-in. Business/First pushes this to roughly $16,928–$24,698.</p>
+      </div>
+      <div class="info-card">
+        <h3>How to use this</h3>
+        <p>Head to <b>Itinerary</b> to browse every stop with photos — tap ✓ / ? / ✕ on anything to mark it keep, maybe, or skip. <b>Savings</b> tracks your biweekly plan toward departure.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITINERARY -->
+  <div class="panel" id="panel-itinerary">
+    <div class="line-map" id="itinerary-map"></div>
+  </div>
+
+  <!-- BUDGET -->
+  <div class="panel" id="panel-budget">
+    <div class="budget-toggle">
+      <button class="toggle-btn active" data-fare="premium">Premium Economy</button>
+      <button class="toggle-btn" data-fare="business">Business / First</button>
+    </div>
+    <div class="budget-total" id="budget-total">$11,728 – $15,898</div>
+    <div class="budget-total-lbl">Estimated total, two travelers</div>
+
+    <div class="bars" id="budget-bars"></div>
+
+    <table class="budget-table">
+      <thead><tr><th>Expense</th><th class="amt-col">Estimate (2 travelers)</th></tr></thead>
+      <tbody id="budget-table-body"></tbody>
+    </table>
+    <p class="footnote">All figures are planning-stage estimates from the trip guide, not live quotes — reconfirm closer to booking.</p>
+  </div>
+
+  <!-- SAVINGS -->
+  <div class="panel" id="panel-savings">
+    <div class="savings-summary">
+      <div class="sav-stat"><div class="num" id="sav-saved">$0</div><div class="lbl">Marked contributed</div></div>
+      <div class="sav-stat"><div class="num" id="sav-remaining">$15,960</div><div class="lbl">Remaining to plan total</div></div>
+      <div class="sav-stat"><div class="num" id="sav-periods">0 / 24</div><div class="lbl">Periods checked off</div></div>
+    </div>
+    <div class="progress-outer"><div class="progress-inner" id="sav-progress-bar" style="width:0%"></div></div>
+    <div class="progress-marks" id="sav-marks"></div>
+    <div class="periods" id="periods-list"></div>
+    <p class="footnote">Personal $315 + BAG consulting $350 = $665 every two weeks, Nov 2, 2026 → Sept 20, 2027 (24 periods). Check off a period once that contribution has actually landed — this is saved on this device only. Low target $11,728 · Mid $13,813 · Max $15,898.</p>
+  </div>
+
+</div>
+
+<script>
+/* ---------------- helpers ---------------- */
+function wmImg(filename, width){
+  return 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(filename) + (width? '?width='+width : '');
+}
+function fmt(n){ return '$' + n.toLocaleString('en-US'); }
+
+const ICONS = {
+  temple: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M24 6l7 7H17z"/><path d="M10 17h28l3 5H7z"/><path d="M12 22v14M36 22v14M18 22v14M30 22v14"/><path d="M9 36h30l2 5H7z"/><path d="M24 3v3"/></svg>`,
+  market: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18l4-9h24l4 9"/><path d="M8 18v3a4 4 0 008 0 4 4 0 008 0 4 4 0 008 0 4 4 0 008 0v-3"/><path d="M11 21v18h26V21"/><path d="M19 39V29h10v10"/></svg>`,
+  crossing: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l36 8M6 22l36 8M6 30l36 8" transform="rotate(-8 24 24)"/><circle cx="24" cy="12" r="3"/><path d="M24 17v9l-6 10M24 26l6 10" /></svg>`,
+  museum: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="5"/><circle cx="24" cy="24" r="12"/><circle cx="24" cy="24" r="19"/><path d="M24 5v6M24 37v6M43 24h-6M11 24H5"/></svg>`,
+  park: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 14c-3-5-9-6-9-6s0 6 4 8"/><path d="M30 14c3-5 9-6 9-6s0 6-4 8"/><ellipse cx="24" cy="24" rx="9" ry="10"/><path d="M20 42l-3-8M28 42l3-8"/><circle cx="21" cy="21" r="1.2" fill="currentColor" stroke="none"/><circle cx="27" cy="21" r="1.2" fill="currentColor" stroke="none"/></svg>`,
+  castle: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20v20h28V20"/><path d="M7 20l3-6 4 4 3-6 4 4h6l4-4 3 6 4-4 3 6"/><path d="M20 40V28h8v12"/></svg>`,
+  street: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M24 6v5"/><path d="M15 15c0-6 4-9 9-9s9 3 9 9v14c0 6-4 9-9 9s-9-3-9-9z"/><path d="M15 22h18M15 15h18"/><path d="M24 38v6"/></svg>`,
+  mountain: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 38L18 14l6 9 3-4 17 19z"/><path d="M14 22l4-2 4 4 3-2"/><path d="M31 12a5 5 0 016 5"/></svg>`,
+  shop: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16h28l-2 24H12z"/><path d="M17 16a7 7 0 0114 0"/></svg>`,
+  water: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 26h10l4-8 4 8h14l-4 10H12z"/><path d="M24 18V9M20 12h8"/><path d="M6 40c3-3 6-3 9 0s6 3 9 0 6-3 9 0 6 3 9 0"/></svg>`,
+  food: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 22h30a15 13 0 01-30 0z"/><path d="M9 22a15 6 0 0130 0"/><path d="M18 12c-2 2-2 4 0 6M25 10c-2 2-2 4 0 6"/></svg>`,
+  garden: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 44V6M15 14h5M15 24h-5M15 34h5"/><path d="M24 44V12M24 20h5M24 30h-5"/><path d="M33 44V18M33 26h5M33 36h-5"/></svg>`,
+  hotel: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 38V16M6 30h36v8M14 30v-6a4 4 0 014-4h6a4 4 0 014 4v6"/><circle cx="12" cy="21" r="2"/><path d="M42 38v-6"/></svg>`,
+  transit: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 30c0-11 5-19 16-19s16 8 16 19"/><path d="M8 30h32v4H8z"/><circle cx="16" cy="38" r="3"/><circle cx="32" cy="38" r="3"/><path d="M8 22h32"/></svg>`,
+};
+
+/* ---------------- itinerary data ---------------- */
+const days = [
+  { n:1, city:'tokyo', date:'Mon Sep 20', title:'Depart Tampa', summary:'Tampa → connection → Tokyo Haneda. Entirely a travel day — you land the following evening local time via the date line.',
+    activities:[
+      {name:'TPA → West Coast hub → HND (Delta)', icon:'transit', blurb:'~9:35am departure, ~3hr layover, ~11.5hr transpacific leg.', url:'https://www.delta.com'} ],
+    meta:{cost:'Included in flight total', tip:null} },
+
+  { n:2, city:'tokyo', date:'Tue Sep 21', title:'Arrive Tokyo', summary:'Land at Haneda ~5pm, transfer to Takanawa, gentle first walk through Ginza to reset the body clock.',
+    activities:[
+      {name:'Haneda Airport → JW Marriott Tokyo', icon:'transit', file:'Haneda airport International Terminal no1.JPG', blurb:'Keikyu Line or taxi, ~15–20 min to Takanawa.'},
+      {name:'Ginza evening walk & dinner', icon:'street', file:'Ginza area at dusk from Tokyo Tower.jpg', blurb:'Light activity on arrival helps with the 13–14hr time change.', url:'https://en.wikipedia.org/wiki/Ginza'} ],
+    meta:{cost:'$12–45 transfer + $60–90 dinner', tip:'Resist the urge to collapse and sleep — a couple hours of daylight helps you adjust faster.'} },
+
+  { n:3, city:'tokyo', date:'Wed Sep 22', title:'Central Tokyo', summary:'Asakusa → teamLab Planets → Shibuya → Shinjuku.',
+    activities:[
+      {name:'Senso-ji Temple, Asakusa', icon:'temple', file:'Sensoji 2023.jpg', blurb:"Tokyo's oldest temple; Nakamise-dori shopping street leads up to it.", url:'https://www.senso-ji.jp/english/'},
+      {name:'teamLab Planets', icon:'museum', file:'At teamLab Planets (48277798316).jpg', blurb:'Barefoot, body-immersive digital art. Book online — sells out days ahead.', url:'https://www.teamlab.art/e/planets/'},
+      {name:'Shibuya Crossing at dusk', icon:'crossing', file:'2025 Shibuya Crossing at night.jpg', blurb:"The world's busiest pedestrian crossing, best as the lights come on.", url:'https://en.wikipedia.org/wiki/Shibuya_Crossing'} ],
+    meta:{cost:'$10–14 transit · $60–70 teamLab · $70–100 dinner', tip:'Book teamLab Planets before you leave home.'} },
+
+  { n:4, city:'tokyo', date:'Thu Sep 23', title:'Tokyo Deep Dive', summary:'Tsukiji → Meiji Shrine → Harajuku → Omotesando → Shinjuku izakaya-hopping.',
+    activities:[
+      {name:'Tsukiji Outer Market', icon:'market', file:'Tsukiji Outer Market -01.jpg', blurb:'Seafood breakfast/lunch stalls — the outer market kept its food-stall energy after the wholesale move to Toyosu.', url:'https://en.wikipedia.org/wiki/Tsukiji_Market'},
+      {name:'Meiji Shrine', icon:'temple', file:'2019-09-04 Torii of Meiji Shrine.jpg', blurb:'A forested, quiet shrine walk right in the middle of the city.', url:'https://en.wikipedia.org/wiki/Meiji_Shrine'},
+      {name:'Takeshita Street, Harajuku', icon:'shop', file:'Takeshita Street in December 2018.jpg', blurb:"Tokyo's youth-fashion strip — crepes, thrift, and people-watching.", url:'https://en.wikipedia.org/wiki/Harajuku'},
+      {name:'Omoide Yokocho, Shinjuku', icon:'food', blurb:'Tiny izakaya alley for skewers and drinks after dark.', url:'https://en.wikipedia.org/wiki/Omoide_Yokoch%C5%8D'} ],
+    meta:{cost:'$40–60 food · $8–12 transit · $70–100 izakaya', tip:null} },
+
+  { n:5, city:'tokyo', date:'Fri Sep 24', title:'Hakone Day Trip', summary:'Round-trip from Tokyo (~90 min each way) for a shot at Mt. Fuji, the Owakudani ropeway, and Lake Ashi.',
+    activities:[
+      {name:'Lake Ashi & Mt. Fuji view', icon:'mountain', file:'Lake Ashi & Mt Fuji & Hakone Shrine.jpg', blurb:'Boat cruise with a torii gate on the water — Fuji visibility is weather-dependent.', url:'https://en.wikipedia.org/wiki/Lake_Ashi'},
+      {name:'Owakudani ropeway', icon:'mountain', file:"Owakudani's cable car, Japan; October 2017.jpg", blurb:'Cable car over an active volcanic valley; try the kuro-tamago black eggs.', url:'https://en.wikipedia.org/wiki/Hakone_Ropeway'},
+      {name:'Onsen soak', icon:'water', blurb:'If time allows, a hot-spring stop rounds out the day.', url:'https://en.wikipedia.org/wiki/Onsen'} ],
+    meta:{cost:'$90–110 Hakone Free Pass (2) · $10–20 onsen', tip:'Check Fuji visibility forecasts that morning — it is often cloud-covered.'} },
+
+  { n:6, city:'tokyo', date:'Sat Sep 25', title:'Akihabara & Odaiba', summary:'A lower-key day before transferring to Osaka — electronics/anime district, then the futuristic waterfront.',
+    activities:[
+      {name:'Akihabara', icon:'shop', file:'Akihabara (24710061748).jpg', blurb:'Electronics, retro arcades, anime and manga shops.', url:'https://en.wikipedia.org/wiki/Akihabara'},
+      {name:'Odaiba waterfront', icon:'water', blurb:'Rainbow Bridge views and mall dining — also home to a well-known Gundam statue, if that appeals.', url:'https://en.wikipedia.org/wiki/Odaiba'} ],
+    meta:{cost:'$10–14 transit · $60–100 discretionary', tip:'Good weather-buffer day if an earlier day gets disrupted.'} },
+
+  { n:7, city:'kansai', date:'Sun Sep 26', title:'Tokyo → Osaka + Fushimi Inari', summary:'Shinkansen to Shin-Osaka, check into The Osaka Station Hotel, then a same-day dash to Fushimi Inari.',
+    activities:[
+      {name:'Shinkansen to Shin-Osaka', icon:'transit', blurb:'Nozomi, reserved seats, ~2h30–3h.', url:'https://global.jr-central.co.jp/en/'},
+      {name:'Fushimi Inari Shrine', icon:'temple', file:'FushimiInariTorii.jpg', blurb:'Thousands of vermilion torii gates climbing the mountain — walk as far as you like.', url:'https://en.wikipedia.org/wiki/Fushimi_Inari-taisha'} ],
+    meta:{cost:'$190–210 Shinkansen · $16–20 Kyoto round-trip', tip:'Buy Shinkansen reserved seats in advance — you\u2019ll be traveling with luggage.'} },
+
+  { n:8, city:'kansai', date:'Mon Sep 27', title:'Kyoto: Temples & Arashiyama', summary:'Kinkaku-ji before the crowds, then the Arashiyama bamboo grove and Tenryu-ji, capped with kaiseki dinner.',
+    activities:[
+      {name:'Kinkaku-ji, the Golden Pavilion', icon:'temple', file:'Golden pavilion, Kinkakuji.jpg', blurb:'A gold-leafed pavilion reflected in its pond — go early.', url:'https://en.wikipedia.org/wiki/Kinkaku-ji'},
+      {name:'Arashiyama bamboo grove', icon:'garden', file:'Arashiyama Bamboo Grove (Unsplash).jpg', blurb:'A quiet, towering bamboo corridor, paired with Tenryu-ji Temple nearby.', url:'https://en.wikipedia.org/wiki/Arashiyama'},
+      {name:'Kaiseki dinner', icon:'food', blurb:'Multi-course traditional dinner — reserve weeks ahead.', url:'https://en.wikipedia.org/wiki/Kaiseki'} ],
+    meta:{cost:'$16–20 rail · $18–22 entry · $160–300 kaiseki', tip:'Reserve kaiseki at least a few weeks out.'} },
+
+  { n:9, city:'kansai', date:'Tue Sep 28', title:'Nara Day Trip', summary:'Free-roaming deer at Nara Park, then Todai-ji\u2019s Great Buddha Hall.',
+    activities:[
+      {name:'Nara Park deer', icon:'park', file:'Deer in Nara Park (Unsplash).jpg', blurb:'Hundreds of tame sika deer — bring a few hundred yen for shika senbei crackers.', url:'https://en.wikipedia.org/wiki/Nara_Park'},
+      {name:'Todai-ji, Great Buddha Hall', icon:'temple', file:'東大寺 大佛殿 Todai-ji Great Buddha Hall - panoramio.jpg', blurb:'One of the largest wooden buildings in the world, housing a giant bronze Buddha.', url:'https://en.wikipedia.org/wiki/T%C5%8Ddai-ji'} ],
+    meta:{cost:'$16–24 rail · $10–12 entry · $30–50 lunch/crackers', tip:null} },
+
+  { n:10, city:'kansai', date:'Wed Sep 29', title:'Kyoto: Gion & Culture', summary:'Morning walk through Gion, a tea ceremony, Nishiki Market lunch, sunset at Kiyomizu-dera.',
+    activities:[
+      {name:'Gion district', icon:'street', file:'JP-Kyoto-Gion-Area-Traditional-House-Night-View.JPG', blurb:'Historic wooden teahouse streets — Kyoto\u2019s geisha district.', url:'https://en.wikipedia.org/wiki/Gion,_Kyoto'},
+      {name:'Tea ceremony experience', icon:'food', blurb:'Book in advance — good sessions have limited daily slots.', url:'https://en.wikipedia.org/wiki/Japanese_tea_ceremony'},
+      {name:'Nishiki Market', icon:'market', blurb:'Kyoto\u2019s kitchen — narrow arcade of food stalls for lunch and browsing.', url:'https://en.wikipedia.org/wiki/Nishiki_Market'},
+      {name:'Kiyomizu-dera at sunset', icon:'temple', file:'Kiyomizu-dera (24293628364).jpg', blurb:'Wooden temple stage with sweeping city views, best timed for sunset.', url:'https://en.wikipedia.org/wiki/Kiyomizu-dera'} ],
+    meta:{cost:'$16–20 rail · $80–120 tea ceremony · $8–10 entry · $40–60 lunch', tip:'Book the tea ceremony online before the trip.'} },
+
+  { n:11, city:'kansai', date:'Thu Sep 30', title:'Osaka & Departure', summary:'Osaka Castle, Dotonbori street food, then Kansai Airport for the nonstop home.',
+    activities:[
+      {name:'Osaka Castle', icon:'castle', file:'Osaka Castle 01bs3200.jpg', blurb:'Iconic keep tower set in a large park — a relaxed morning stop.', url:'https://en.wikipedia.org/wiki/Osaka_Castle'},
+      {name:'Dotonbori', icon:'street', file:'Dotonbori, Osaka, at night, November 2016.jpg', blurb:'Neon canal district — takoyaki, okonomiyaki, and people-watching.', url:'https://en.wikipedia.org/wiki/D%C5%8Dtonbori'},
+      {name:'Kansai Airport (KIX) → United nonstop to SFO → Tampa', icon:'transit', blurb:'Haruka Express or limousine bus, ~45–60 min to the airport.', url:'https://www.united.com'} ],
+    meta:{cost:'$10–12 castle · $40–60 food · $50–70 airport transfer', tip:'The easy version of a last day — short train to the airport, no backtracking to Tokyo.'} },
+];
+
+/* ---------------- render itinerary ---------------- */
+const map = document.getElementById('itinerary-map');
+days.forEach(d=>{
+  const dayEl = document.createElement('div');
+  dayEl.className = 'day' + (d.city==='kansai' ? ' kansai' : '');
+  dayEl.innerHTML = `
+    <div class="day-stop">${d.n}</div>
+    <div class="day-head">
+      <h2>${d.title}</h2>
+      <span class="day-date">${d.date}</span>
+      <span class="day-tag">${d.city==='kansai' ? 'Kansai' : 'Tokyo'}</span>
+    </div>
+    <p class="day-summary">${d.summary}</p>
+    <div class="activities"></div>
+    <div class="day-meta"><span><b>Est. cost (2):</b> ${d.meta.cost}</span></div>
+    ${d.meta.tip ? `<div class="day-tip">💡 ${d.meta.tip}</div>` : ''}
+  `;
+  const actWrap = dayEl.querySelector('.activities');
+  d.activities.forEach((a,i)=>{
+    const id = 'act_' + d.n + '_' + i;
+    const card = document.createElement('div');
+    card.className = 'act-card';
+    const visualHtml = a.file
+      ? `<img class="act-photo" loading="lazy" src="${wmImg(a.file,500)}" alt="${a.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+         <div class="act-visual" style="display:none">${ICONS[a.icon] || ICONS.temple}</div>`
+      : `<div class="act-visual">${ICONS[a.icon] || ICONS.temple}</div>`;
+    card.innerHTML = `
+      ${visualHtml}
+      <div class="act-body">
+        <p class="act-name">${a.name}</p>
+        <p class="act-blurb">${a.blurb||''}</p>
+        <div class="act-foot">
+          <div class="decision" data-id="${id}">
+            <button class="dbtn sel-keep" data-v="keep" title="Keep">✓</button>
+            <button class="dbtn sel-maybe" data-v="maybe" title="Maybe">?</button>
+            <button class="dbtn sel-skip" data-v="skip" title="Skip">✕</button>
+          </div>
+          ${a.url ? `<a class="act-link" href="${a.url}" target="_blank" rel="noopener">More info ↗</a>` : ''}
+        </div>
+      </div>
+    `;
+    actWrap.appendChild(card);
+  });
+  map.appendChild(dayEl);
+});
+
+/* decision toggle logic + persistence */
+const DECISIONS_KEY = 'japan2027-activity-decisions';
+let decisions = {};
+async function loadDecisions(){
+  try{
+    const r = await window.storage.get(DECISIONS_KEY);
+    decisions = r ? JSON.parse(r.value) : {};
+  }catch(e){ decisions = {}; }
+  applyDecisionsToUI();
+}
+function applyDecisionsToUI(){
+  document.querySelectorAll('.decision').forEach(group=>{
+    const id = group.dataset.id;
+    const val = decisions[id];
+    group.querySelectorAll('.dbtn').forEach(btn=>{
+      btn.classList.toggle('on', btn.dataset.v === val);
+    });
+  });
+}
+document.getElementById('itinerary-map').addEventListener('click', async (e)=>{
+  const btn = e.target.closest('.dbtn');
+  if(!btn) return;
+  const group = btn.closest('.decision');
+  const id = group.dataset.id;
+  const v = btn.dataset.v;
+  decisions[id] = (decisions[id] === v) ? undefined : v;
+  if(decisions[id] === undefined) delete decisions[id];
+  applyDecisionsToUI();
+  try{ await window.storage.set(DECISIONS_KEY, JSON.stringify(decisions)); }catch(err){}
+});
+loadDecisions();
+
+/* ---------------- tabs ---------------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------------- budget ---------------- */
+const budgetRows = [
+  ['Flights (Delta TPA→HND + United KIX→TPA)', 4000, 5600, 9200, 14400],
+  ['Hotel, Tokyo (5 nights)', 3250, 4100, 3250, 4100],
+  ['Hotel, Osaka (4 nights)', 1920, 2880, 1920, 2880],
+  ['Shinkansen, Tokyo → Shin-Osaka', 190, 210, 190, 210],
+  ['Local transfer, Shin-Osaka → Osaka Station', 8, 10, 8, 10],
+  ['Kyoto day trips (3 round trips)', 74, 94, 74, 94],
+  ['Nara day trip', 16, 24, 16, 24],
+  ['Hakone day trip (Free Pass)', 90, 110, 90, 110],
+  ['Daily subway/IC card (Tokyo & Osaka)', 80, 120, 80, 120],
+  ['Osaka Station → Kansai Airport', 50, 70, 50, 70],
+  ['Food & dining (10 days)', 1200, 1550, 1200, 1550],
+  ['Activities / entrance fees / tea ceremony / kaiseki', 350, 450, 350, 450],
+  ['Travel insurance', 100, 180, 100, 180],
+  ['Misc / buffer / gifts', 400, 500, 400, 500],
+];
+let fareMode = 'premium';
+function renderBudget(){
+  const lo = budgetRows.reduce((s,r)=> s + (fareMode==='premium'? r[1] : r[3]), 0);
+  const hi = budgetRows.reduce((s,r)=> s + (fareMode==='premium'? r[2] : r[4]), 0);
+  document.getElementById('budget-total').textContent = fmt(lo) + ' – ' + fmt(hi);
+
+  const tbody = document.getElementById('budget-table-body');
+  tbody.innerHTML = '';
+  budgetRows.forEach(r=>{
+    const [label,pLo,pHi,bLo,bHi] = r;
+    const rowLo = fareMode==='premium' ? pLo : bLo;
+    const rowHi = fareMode==='premium' ? pHi : bHi;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${label}</td><td class="amt-col">${fmt(rowLo)} – ${fmt(rowHi)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const totalTr = document.createElement('tr');
+  totalTr.innerHTML = `<td>Total</td><td class="amt-col">${fmt(lo)} – ${fmt(hi)}</td>`;
+  tbody.appendChild(totalTr);
+
+  const barsWrap = document.getElementById('budget-bars');
+  barsWrap.innerHTML = '';
+  const groups = [
+    ['Flights', fareMode==='premium'? 4000:9200, fareMode==='premium'? 5600:14400],
+    ['Hotels', 5170, 6980],
+    ['Transportation', 508, 638],
+    ['Food & activities', 1550, 2000],
+    ['Insurance & misc', 500, 680],
+  ];
+  const maxHi = Math.max(...groups.map(g=>g[2]));
+  groups.forEach(g=>{
+    const [label,lo2,hi2] = g;
+    const pct = Math.round((hi2/maxHi)*100);
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `<div>${label}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><div class="bar-amt">${fmt(lo2)}–${fmt(hi2)}</div>`;
+    barsWrap.appendChild(row);
+  });
+}
+document.querySelectorAll('.toggle-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    fareMode = btn.dataset.fare;
+    renderBudget();
+  });
+});
+renderBudget();
+
+/* ---------------- savings ---------------- */
+const START_DATE = new Date('2026-11-02T00:00:00');
+const PERIODS = 24;
+const PERSONAL = 315, CONSULTING = 350, COMBINED = 665;
+const TARGETS = {low:11728, mid:13813, max:15898};
+const TOTAL_PLAN = COMBINED * PERIODS;
+
+const periods = [];
+for(let i=0;i<PERIODS;i++){
+  const d = new Date(START_DATE);
+  d.setDate(d.getDate() + i*14);
+  const cumulative = COMBINED * (i+1);
+  let milestone = '';
+  if(cumulative >= TARGETS.low && (COMBINED*i) < TARGETS.low) milestone = 'low target';
+  if(cumulative >= TARGETS.mid && (COMBINED*i) < TARGETS.mid) milestone = 'mid target';
+  if(cumulative >= TARGETS.max && (COMBINED*i) < TARGETS.max) milestone = 'max target';
+  periods.push({
+    idx:i+1,
+    date: d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    cumulative, milestone
+  });
+}
+
+const periodsList = document.getElementById('periods-list');
+periods.forEach(p=>{
+  const row = document.createElement('div');
+  row.className = 'period-row';
+  row.innerHTML = `
+    <div class="pchk" data-idx="${p.idx}"></div>
+    <div class="pdate">${p.date}</div>
+    <div>${p.milestone ? `<span class="pmilestone">★ ${p.milestone}</span>` : `Period ${p.idx}`}</div>
+    <div class="pamt">${fmt(p.cumulative)}</div>
+  `;
+  periodsList.appendChild(row);
+});
+
+/* marks under progress bar */
+const marksWrap = document.getElementById('sav-marks');
+[['low',TARGETS.low],['mid',TARGETS.mid],['max',TARGETS.max]].forEach(([label,val])=>{
+  const pct = Math.min(100,(val/TOTAL_PLAN)*100);
+  const s = document.createElement('span');
+  s.style.left = pct + '%';
+  s.textContent = label + ' ' + fmt(val);
+  marksWrap.appendChild(s);
+});
+
+const SAVINGS_KEY = 'japan2027-savings-checked';
+let checked = {};
+async function loadSavings(){
+  try{
+    const r = await window.storage.get(SAVINGS_KEY);
+    checked = r ? JSON.parse(r.value) : {};
+  }catch(e){ checked = {}; }
+  renderSavingsState();
+}
+function renderSavingsState(){
+  let count = 0, saved = 0;
+  document.querySelectorAll('.pchk').forEach(el=>{
+    const idx = el.dataset.idx;
+    const on = !!checked[idx];
+    el.classList.toggle('on', on);
+    el.textContent = on ? '✓' : '';
+    if(on){ count++; saved += COMBINED; }
+  });
+  document.getElementById('sav-saved').textContent = fmt(saved);
+  document.getElementById('sav-remaining').textContent = fmt(Math.max(0, TARGETS.max - saved));
+  document.getElementById('sav-periods').textContent = count + ' / ' + PERIODS;
+  const pct = Math.min(100, Math.round((saved/TOTAL_PLAN)*100));
+  document.getElementById('sav-progress-bar').style.width = pct + '%';
+}
+periodsList.addEventListener('click', async (e)=>{
+  const box = e.target.closest('.pchk');
+  if(!box) return;
+  const idx = box.dataset.idx;
+  checked[idx] = !checked[idx];
+  renderSavingsState();
+  try{ await window.storage.set(SAVINGS_KEY, JSON.stringify(checked)); }catch(err){}
+});
+loadSavings();
+</script>
+</body>
+</html>
