@@ -455,6 +455,36 @@ table.budget-table tr:last-child td{border-bottom:none;}
 .pamt{text-align:right;font-family:'IBM Plex Mono',monospace;}
 
 .footnote{font-size:11.5px;color:var(--ink-soft);margin-top:16px;line-height:1.5;}
+.log-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 12px;font-size:12.5px;border-bottom:1px solid var(--line);}
+.log-row:last-child{border-bottom:none;}
+.log-who{font-weight:700;color:var(--indigo);font-family:'Shippori Mincho',serif;}
+.log-when{color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;font-size:10.5px;white-space:nowrap;}
+.identity-modal{
+  position:fixed;inset:0;background:rgba(24,27,38,0.6);z-index:10000;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.identity-card{
+  background:var(--paper-card);border:1.5px solid var(--ink);border-radius:2px;
+  box-shadow:5px 5px 0 var(--indigo-soft);padding:28px 26px;max-width:340px;text-align:center;
+}
+.identity-card h3{font-family:'Shippori Mincho',serif;font-size:19px;margin:0 0 6px 0;color:var(--ink);}
+.identity-card p{font-size:12.5px;color:var(--ink-soft);margin:0 0 18px 0;line-height:1.5;}
+.identity-btns{display:flex;gap:10px;margin-bottom:14px;}
+.identity-btn{
+  flex:1;padding:13px 10px;border:1.5px solid var(--ink);border-radius:2px;background:var(--paper);
+  font-family:'Shippori Mincho',serif;font-weight:700;font-size:15px;cursor:pointer;color:var(--ink);
+}
+.identity-btn:hover{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+.identity-other{display:flex;gap:8px;}
+.identity-other input{
+  flex:1;padding:9px 10px;border:1px solid var(--line);border-radius:4px;
+  font-family:'IBM Plex Sans',sans-serif;font-size:13px;background:var(--paper);color:var(--ink);
+}
+.identity-other button{
+  padding:9px 14px;border:1px solid var(--line);border-radius:4px;background:var(--paper);
+  cursor:pointer;font-size:12.5px;font-weight:600;color:var(--ink-soft);
+}
+.identity-other button:hover{color:var(--indigo);border-color:var(--indigo);}
 .footer-mark{
   text-align:center;font-family:'Shippori Mincho',serif;font-size:12px;
   color:var(--ink-soft);letter-spacing:0.1em;margin-top:16px;padding-bottom:6px;
@@ -521,6 +551,7 @@ table.budget-table tr:last-child td{border-bottom:none;}
     <button class="tab-btn" data-tab="itinerary"><span class="stop"></span>Itinerary</button>
     <button class="tab-btn" data-tab="budget"><span class="stop"></span>Budget</button>
     <button class="tab-btn" data-tab="savings"><span class="stop"></span>Savings</button>
+    <button class="tab-btn" data-tab="activity"><span class="stop"></span>Activity</button>
   </div>
 
   <!-- OVERVIEW -->
@@ -625,12 +656,34 @@ table.budget-table tr:last-child td{border-bottom:none;}
     <div class="progress-outer"><div class="progress-inner" id="sav-progress-bar" style="width:0%"></div></div>
     <div class="progress-marks" id="sav-marks"></div>
     <div class="periods" id="periods-list"></div>
-    <p class="footnote">Personal $315 + BAG consulting $350 = $665 every two weeks, Nov 2, 2026 → Sept 20, 2027 (24 periods). The target above updates live with whatever's in the Budget tab for the selected fare class — check off a period once that contribution has actually landed. Saved on this device only.</p>
+    <p class="footnote">Personal $315 + BAG consulting $350 = $665 every two weeks, Nov 2, 2026 → Sept 20, 2027 (24 periods). The target above updates live with whatever's in the Budget tab for the selected fare class — check off a period once that contribution has actually landed. Shared between you both.</p>
+  </div>
+
+  <!-- ACTIVITY LOG -->
+  <div class="panel" id="panel-activity">
+    <h3 style="font-family:'Shippori Mincho',serif;font-size:16px;margin:0 0 4px 0;">Edit history</h3>
+    <p class="act-skip-note" style="margin-bottom:14px;">Every change either of you makes shows up here, newest first.</p>
+    <div class="periods" id="activity-log-list" style="max-height:520px;"></div>
   </div>
 
   <div class="wave-divider" style="margin-top:32px;"></div>
   <div class="footer-mark">旅 — Jovoni &amp; Saraiyah's Japan Trip · September 2027</div>
 
+</div>
+
+<div class="identity-modal" id="identity-modal" style="display:none;">
+  <div class="identity-card">
+    <h3>Who's planning today?</h3>
+    <p>This just labels your edits in the Activity tab — pick a name below.</p>
+    <div class="identity-btns">
+      <button class="identity-btn" data-name="Jovoni">Jovoni</button>
+      <button class="identity-btn" data-name="Saraiyah">Saraiyah</button>
+    </div>
+    <div class="identity-other">
+      <input type="text" id="identity-other-input" placeholder="Someone else...">
+      <button id="identity-other-btn">Set</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -757,6 +810,8 @@ const BUFFERS_KEY = 'japan2027-buffers';
 const FLIGHTS_KEY = 'japan2027-flights';
 const FLIGHT_TIMES_KEY = 'japan2027-flight-times';
 const SAVEMODE_KEY = 'japan2027-savings-mode';
+const IDENTITY_KEY = 'japan2027-my-name';
+const LOG_KEY = 'japan2027-edit-log';
 
 let customActivities = {};   // { dayN: [ {id,name,blurb,url,icon,cost,duration,transitMins} ] }
 let decisions = {};          // { activityId: 'keep'|'maybe'|'skip' }
@@ -770,6 +825,8 @@ let fixedExtras = { subway:100, food:500, insurance:140, misc:450 };
 let buffers = { premium:0, business:0 };
 let fareMode = 'premium';
 let saveMode = 'premium';
+let myName = null;
+let editLog = [];
 let flightTimes = { tpaDepart:'09:35', hndArrive:'17:00', kixDepart:'16:00' };
 
 const DAY_START_DEFAULTS = {3:540, 4:510, 5:450, 6:570, 7:600, 8:480, 9:510, 10:510, 11:480};
@@ -987,6 +1044,7 @@ map.addEventListener('click', (e)=>{
     const card = removeBtn.closest('.act-card');
     const day = card.closest('.day').querySelector('.add-card').dataset.day;
     const customId = card.dataset.customId;
+    const actName = card.querySelector('.act-name')?.textContent || 'an activity';
     customActivities[day] = (customActivities[day]||[]).filter(a=>a.id !== customId);
     delete decisions[customId];
     delete costOverrides[customId];
@@ -994,6 +1052,7 @@ map.addEventListener('click', (e)=>{
     card.remove();
     persistCustom(); persistDecisions(); persistCostOverrides(); persistImages();
     recomputeBudget();
+    logEdit(`removed "${actName}" (Day ${day})`);
     return;
   }
   const photoBtn = e.target.closest('.act-photo-btn');
@@ -1038,6 +1097,8 @@ map.addEventListener('change', (e)=>{
         if(secondVisual) secondVisual.remove();
       }
       persistImages();
+      const actName = card.querySelector('.act-name')?.textContent || 'an activity';
+      logEdit(`added a photo to "${actName}"`);
     };
     img.src = ev.target.result;
   };
@@ -1058,6 +1119,7 @@ function startCostEdit(costEl){
   input.select();
   function commit(){
     const val = Math.max(0, Number(input.value) || 0);
+    const changed = val !== current;
     costOverrides[id] = val;
     persistCostOverrides();
     const span = document.createElement('span');
@@ -1067,6 +1129,10 @@ function startCostEdit(costEl){
     span.textContent = val > 0 ? fmt(val) : 'Free';
     input.replaceWith(span);
     recomputeBudget();
+    if(changed){
+      const actName = span.closest('.act-card')?.querySelector('.act-name')?.textContent || 'an activity';
+      logEdit(`set the cost of "${actName}" to ${val > 0 ? fmt(val) : 'Free'}`);
+    }
   }
   input.addEventListener('blur', commit);
   input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') input.blur(); });
@@ -1109,21 +1175,22 @@ map.addEventListener('click', async (e)=>{
   map.querySelector(`.add-card[data-day="${day}"]`).style.display = 'block';
   await persistCustom();
   recomputeBudget();
+  logEdit(`added a new activity: "${name}" (Day ${day})`);
 });
 
-async function persistCustom(){ try{ await window.storage.set(CUSTOM_KEY, JSON.stringify(customActivities)); }catch(err){} }
-async function persistDecisions(){ try{ await window.storage.set(DECISIONS_KEY, JSON.stringify(decisions)); }catch(err){} }
-async function persistCostOverrides(){ try{ await window.storage.set(COST_OVERRIDES_KEY, JSON.stringify(costOverrides)); }catch(err){} }
-async function persistImages(){ try{ await window.storage.set(IMAGES_KEY, JSON.stringify(customImages)); }catch(err){} }
-async function persistHotels(){ try{ await window.storage.set(HOTELS_KEY, JSON.stringify(hotels)); }catch(err){} }
-async function persistFixed(){ try{ await window.storage.set(FIXED_KEY, JSON.stringify(fixedExtras)); }catch(err){} }
-async function persistBuffers(){ try{ await window.storage.set(BUFFERS_KEY, JSON.stringify(buffers)); }catch(err){} }
-async function persistFlights(){ try{ await window.storage.set(FLIGHTS_KEY, JSON.stringify(FLIGHTS)); }catch(err){} }
-async function persistFlightTimes(){ try{ await window.storage.set(FLIGHT_TIMES_KEY, JSON.stringify(flightTimes)); }catch(err){} }
-async function persistSaveMode(){ try{ await window.storage.set(SAVEMODE_KEY, saveMode); }catch(err){} }
+async function persistCustom(){ try{ await window.storage.set(CUSTOM_KEY, JSON.stringify(customActivities), true); }catch(err){} }
+async function persistDecisions(){ try{ await window.storage.set(DECISIONS_KEY, JSON.stringify(decisions), true); }catch(err){} }
+async function persistCostOverrides(){ try{ await window.storage.set(COST_OVERRIDES_KEY, JSON.stringify(costOverrides), true); }catch(err){} }
+async function persistImages(){ try{ await window.storage.set(IMAGES_KEY, JSON.stringify(customImages), true); }catch(err){} }
+async function persistHotels(){ try{ await window.storage.set(HOTELS_KEY, JSON.stringify(hotels), true); }catch(err){} }
+async function persistFixed(){ try{ await window.storage.set(FIXED_KEY, JSON.stringify(fixedExtras), true); }catch(err){} }
+async function persistBuffers(){ try{ await window.storage.set(BUFFERS_KEY, JSON.stringify(buffers), true); }catch(err){} }
+async function persistFlights(){ try{ await window.storage.set(FLIGHTS_KEY, JSON.stringify(FLIGHTS), true); }catch(err){} }
+async function persistFlightTimes(){ try{ await window.storage.set(FLIGHT_TIMES_KEY, JSON.stringify(flightTimes), true); }catch(err){} }
+async function persistSaveMode(){ try{ await window.storage.set(SAVEMODE_KEY, saveMode, true); }catch(err){} }
 
 async function loadCustomActivities(){
-  try{ const r = await window.storage.get(CUSTOM_KEY); customActivities = r ? JSON.parse(r.value) : {}; }catch(e){ customActivities = {}; }
+  try{ const r = await window.storage.get(CUSTOM_KEY, true); customActivities = r ? JSON.parse(r.value) : {}; }catch(e){ customActivities = {}; }
   Object.keys(customActivities).forEach(day=>{
     const dayEl = [...document.querySelectorAll('.day')].find(el=>el.querySelector('.add-card').dataset.day === day);
     if(!dayEl) return;
@@ -1133,23 +1200,23 @@ async function loadCustomActivities(){
   });
 }
 async function loadCostOverrides(){
-  try{ const r = await window.storage.get(COST_OVERRIDES_KEY); costOverrides = r ? JSON.parse(r.value) : {}; }catch(e){ costOverrides = {}; }
+  try{ const r = await window.storage.get(COST_OVERRIDES_KEY, true); costOverrides = r ? JSON.parse(r.value) : {}; }catch(e){ costOverrides = {}; }
 }
 async function loadImages(){
-  try{ const r = await window.storage.get(IMAGES_KEY); customImages = r ? JSON.parse(r.value) : {}; }catch(e){ customImages = {}; }
+  try{ const r = await window.storage.get(IMAGES_KEY, true); customImages = r ? JSON.parse(r.value) : {}; }catch(e){ customImages = {}; }
 }
 async function loadHotels(){
-  try{ const r = await window.storage.get(HOTELS_KEY); if(r) hotels = JSON.parse(r.value); }catch(e){}
+  try{ const r = await window.storage.get(HOTELS_KEY, true); if(r) hotels = JSON.parse(r.value); }catch(e){}
 }
 async function loadFixed(){
-  try{ const r = await window.storage.get(FIXED_KEY); if(r) fixedExtras = JSON.parse(r.value); }catch(e){}
+  try{ const r = await window.storage.get(FIXED_KEY, true); if(r) fixedExtras = JSON.parse(r.value); }catch(e){}
 }
 async function loadBuffers(){
-  try{ const r = await window.storage.get(BUFFERS_KEY); if(r) buffers = JSON.parse(r.value); }catch(e){}
+  try{ const r = await window.storage.get(BUFFERS_KEY, true); if(r) buffers = JSON.parse(r.value); }catch(e){}
 }
 async function loadFlights(){
   try{
-    const r = await window.storage.get(FLIGHTS_KEY);
+    const r = await window.storage.get(FLIGHTS_KEY, true);
     if(r){
       const saved = JSON.parse(r.value);
       if(saved.premium) Object.assign(FLIGHTS.premium, saved.premium);
@@ -1158,10 +1225,10 @@ async function loadFlights(){
   }catch(e){}
 }
 async function loadFlightTimes(){
-  try{ const r = await window.storage.get(FLIGHT_TIMES_KEY); if(r) Object.assign(flightTimes, JSON.parse(r.value)); }catch(e){}
+  try{ const r = await window.storage.get(FLIGHT_TIMES_KEY, true); if(r) Object.assign(flightTimes, JSON.parse(r.value)); }catch(e){}
 }
 async function loadSaveMode(){
-  try{ const r = await window.storage.get(SAVEMODE_KEY); if(r && (r.value==='premium'||r.value==='business')) saveMode = r.value; }catch(e){}
+  try{ const r = await window.storage.get(SAVEMODE_KEY, true); if(r && (r.value==='premium'||r.value==='business')) saveMode = r.value; }catch(e){}
 }
 
 /* decision toggle logic */
@@ -1177,7 +1244,7 @@ function applyDecisionsToUI(){
   });
 }
 async function loadDecisions(){
-  try{ const r = await window.storage.get(DECISIONS_KEY); decisions = r ? JSON.parse(r.value) : {}; }catch(e){ decisions = {}; }
+  try{ const r = await window.storage.get(DECISIONS_KEY, true); decisions = r ? JSON.parse(r.value) : {}; }catch(e){ decisions = {}; }
   applyDecisionsToUI();
 }
 document.getElementById('itinerary-map').addEventListener('click', async (e)=>{
@@ -1186,11 +1253,15 @@ document.getElementById('itinerary-map').addEventListener('click', async (e)=>{
   const group = btn.closest('.decision');
   const id = group.dataset.id;
   const v = btn.dataset.v;
-  decisions[id] = (decisions[id] === v) ? undefined : v;
+  const actName = group.closest('.act-card')?.querySelector('.act-name')?.textContent || 'an activity';
+  const wasCleared = decisions[id] === v;
+  decisions[id] = wasCleared ? undefined : v;
   if(decisions[id] === undefined) delete decisions[id];
   applyDecisionsToUI();
   await persistDecisions();
   recomputeBudget();
+  const labelMap = {keep:'Keep', maybe:'Maybe', skip:'Skip'};
+  logEdit(wasCleared ? `cleared the mark on "${actName}"` : `marked "${actName}" as ${labelMap[v]}`);
 });
 
 /* ---------------- flying plane ---------------- */
@@ -1223,6 +1294,8 @@ function spawnPlane(){
     if(id==='ft-kix-depart') flightTimes.kixDepart = e.target.value;
     await persistFlightTimes();
     renderSchedule();
+    const labels = {'ft-tpa-depart':'Tampa departure time', 'ft-hnd-arrive':'Haneda arrival time', 'ft-kix-depart':'Kansai departure time'};
+    logEdit(`updated the ${labels[id]} to ${minutesToLabel(timeToMinutes(e.target.value))}`);
   });
 });
 
@@ -1362,6 +1435,7 @@ document.getElementById('add-hotel-btn').addEventListener('click', async ()=>{
   hotels.push({id:'h'+Date.now(), name:'New hotel', nights:1, rate:200});
   await persistHotels();
   recomputeBudget();
+  logEdit('added a new hotel stay');
 });
 
 document.getElementById('budget-hotels-body').addEventListener('change', async (e)=>{
@@ -1373,13 +1447,16 @@ document.getElementById('budget-hotels-body').addEventListener('change', async (
   else h[input.dataset.field] = Math.max(0, Number(input.value)||0);
   await persistHotels();
   recomputeBudget();
+  logEdit(`updated hotel "${h.name}"`);
 });
 document.getElementById('budget-hotels-body').addEventListener('click', async (e)=>{
   const btn = e.target.closest('.hotel-remove');
   if(!btn) return;
+  const removed = hotels.find(h=>h.id===btn.dataset.id);
   hotels = hotels.filter(h=>h.id !== btn.dataset.id);
   await persistHotels();
   recomputeBudget();
+  logEdit(`removed hotel stay "${removed ? removed.name : ''}"`);
 });
 
 document.getElementById('budget-fixed-body').addEventListener('change', async (e)=>{
@@ -1388,12 +1465,17 @@ document.getElementById('budget-fixed-body').addEventListener('change', async (e
   fixedExtras[input.dataset.fixed] = Math.max(0, Number(input.value)||0);
   await persistFixed();
   recomputeBudget();
+  const labels = {subway:'Daily subway/IC card', food:'Food & dining', insurance:'Travel insurance', misc:'Misc/buffer/gifts'};
+  logEdit(`updated ${labels[input.dataset.fixed] || 'a budget line'} to ${fmt(fixedExtras[input.dataset.fixed])}`);
 });
 
 document.getElementById('buffer-input').addEventListener('input', async (e)=>{
   buffers[fareMode] = Math.max(0, Number(e.target.value)||0);
   await persistBuffers();
   recomputeBudget();
+});
+document.getElementById('buffer-input').addEventListener('change', ()=>{
+  logEdit(`set the ${fareMode==='premium'?'Premium Economy':'Business/First'} buffer to ${fmt(buffers[fareMode]||0)}`);
 });
 
 document.getElementById('budget-flights-body').addEventListener('change', async (e)=>{
@@ -1404,6 +1486,7 @@ document.getElementById('budget-flights-body').addEventListener('change', async 
   else f.high = Math.max(0, Number(input.value)||0);
   await persistFlights();
   recomputeBudget();
+  logEdit(`updated the ${fareMode==='premium'?'Premium Economy':'Business/First'} flight estimate to ${fmt(f.low)}–${fmt(f.high)}`);
 });
 
 /* ---------------- SAVINGS ---------------- */
@@ -1438,7 +1521,7 @@ periods.forEach(p=>{
 const SAVINGS_KEY = 'japan2027-savings-checked';
 let checked = {};
 async function loadSavings(){
-  try{ const r = await window.storage.get(SAVINGS_KEY); checked = r ? JSON.parse(r.value) : {}; }catch(e){ checked = {}; }
+  try{ const r = await window.storage.get(SAVINGS_KEY, true); checked = r ? JSON.parse(r.value) : {}; }catch(e){ checked = {}; }
 }
 function renderSavingsState(){
   const target = budgetTotal(saveMode);
@@ -1477,7 +1560,8 @@ periodsList.addEventListener('click', async (e)=>{
   const idx = box.dataset.idx;
   checked[idx] = !checked[idx];
   renderSavingsState();
-  try{ await window.storage.set(SAVINGS_KEY, JSON.stringify(checked)); }catch(err){}
+  try{ await window.storage.set(SAVINGS_KEY, JSON.stringify(checked), true); }catch(err){}
+  logEdit(checked[idx] ? `checked off savings period ${idx}` : `un-checked savings period ${idx}`);
 });
 document.querySelectorAll('.toggle-btn[data-savemode]').forEach(btn=>{
   btn.addEventListener('click', async ()=>{
@@ -1486,12 +1570,72 @@ document.querySelectorAll('.toggle-btn[data-savemode]').forEach(btn=>{
     saveMode = btn.dataset.savemode;
     await persistSaveMode();
     renderSavingsState();
+    logEdit(`switched the savings target to ${saveMode==='premium'?'Premium Economy':'Business/First'}`);
   });
 });
 
+/* ---------------- identity + edit log ---------------- */
+async function loadIdentity(){
+  try{ const r = await window.storage.get(IDENTITY_KEY); myName = r ? r.value : null; }catch(e){ myName = null; }
+}
+async function saveIdentity(name){
+  myName = name;
+  try{ await window.storage.set(IDENTITY_KEY, name); }catch(e){}
+}
+function showIdentityModal(){ document.getElementById('identity-modal').style.display = 'flex'; }
+function hideIdentityModal(){ document.getElementById('identity-modal').style.display = 'none'; }
+document.querySelectorAll('.identity-btn').forEach(btn=>{
+  btn.addEventListener('click', async ()=>{
+    await saveIdentity(btn.dataset.name);
+    hideIdentityModal();
+  });
+});
+document.getElementById('identity-other-btn').addEventListener('click', async ()=>{
+  const input = document.getElementById('identity-other-input');
+  const val = input.value.trim();
+  if(!val) return;
+  await saveIdentity(val);
+  hideIdentityModal();
+});
+
+async function loadLog(){
+  try{ const r = await window.storage.get(LOG_KEY, true); editLog = r ? JSON.parse(r.value) : []; }catch(e){ editLog = []; }
+}
+async function logEdit(message){
+  const entry = { who: myName || 'Someone', what: message, when: Date.now() };
+  editLog.unshift(entry);
+  if(editLog.length > 60) editLog = editLog.slice(0, 60);
+  try{ await window.storage.set(LOG_KEY, JSON.stringify(editLog), true); }catch(e){}
+  renderLog();
+}
+function timeAgo(ts){
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff/60000);
+  if(mins < 1) return 'just now';
+  if(mins < 60) return mins + ' min ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs + 'hr ago';
+  const days = Math.floor(hrs/24);
+  if(days < 7) return days + 'd ago';
+  return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+function renderLog(){
+  const wrap = document.getElementById('activity-log-list');
+  if(!wrap) return;
+  if(editLog.length === 0){
+    wrap.innerHTML = '<div class="log-row"><span>No edits yet — changes you both make will show up here.</span></div>';
+    return;
+  }
+  wrap.innerHTML = editLog.map(e=>
+    `<div class="log-row"><span><span class="log-who">${e.who}</span> ${e.what}</span><span class="log-when">${timeAgo(e.when)}</span></div>`
+  ).join('');
+}
+
 /* ---------------- boot sequence ---------------- */
 (async function boot(){
-  await Promise.all([loadCostOverrides(), loadImages(), loadHotels(), loadFixed(), loadBuffers(), loadFlights(), loadFlightTimes(), loadSaveMode()]);
+  await Promise.all([loadCostOverrides(), loadImages(), loadHotels(), loadFixed(), loadBuffers(), loadFlights(), loadFlightTimes(), loadSaveMode(), loadIdentity(), loadLog()]);
+  renderLog();
+  if(!myName) showIdentityModal();
   document.getElementById('ft-tpa-depart').value = flightTimes.tpaDepart;
   document.getElementById('ft-hnd-arrive').value = flightTimes.hndArrive;
   document.getElementById('ft-kix-depart').value = flightTimes.kixDepart;
