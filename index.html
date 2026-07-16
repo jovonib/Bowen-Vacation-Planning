@@ -209,6 +209,44 @@ body{
 }
 .day.kansai .day-tip{color:var(--persimmon);background:var(--persimmon-soft);}
 
+.act-card{position:relative;}
+.act-remove{
+  position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;
+  background:rgba(255,255,255,0.9);border:1px solid var(--line);cursor:pointer;
+  font-size:11px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;
+  z-index:2;
+}
+.act-remove:hover{color:var(--alert);border-color:var(--alert);}
+
+.add-card{
+  display:block;width:100%;margin-top:12px;
+  border:2px dashed var(--line);border-radius:12px;background:transparent;
+  padding:12px;text-align:center;cursor:pointer;
+  font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;color:var(--ink-soft);
+}
+.add-card:hover{border-color:var(--indigo);color:var(--indigo);}
+.day.kansai .add-card:hover{border-color:var(--persimmon);color:var(--persimmon);}
+.add-form{
+  margin-top:12px;background:var(--paper-card);border:1px solid var(--line);border-radius:10px;
+  padding:14px;flex-direction:column;gap:8px;
+}
+.add-form input,.add-form textarea,.add-form select{
+  width:100%;font-family:'IBM Plex Sans',sans-serif;font-size:13px;padding:8px 10px;
+  border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);
+}
+.add-form textarea{resize:vertical;min-height:48px;}
+.add-form-row{display:flex;gap:8px;}
+.add-form-row select{flex:0 0 130px;}
+.add-form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:2px;}
+.btn-save{
+  background:var(--suica);color:#fff;border:none;border-radius:7px;padding:8px 16px;
+  font-size:12.5px;font-weight:600;cursor:pointer;
+}
+.btn-cancel{
+  background:none;border:1px solid var(--line);border-radius:7px;padding:8px 16px;
+  font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink-soft);
+}
+
 /* ---------- BUDGET ---------- */
 .budget-toggle{display:flex;gap:8px;margin-bottom:20px;}
 .toggle-btn{
@@ -460,6 +498,38 @@ const days = [
 
 /* ---------------- render itinerary ---------------- */
 const map = document.getElementById('itinerary-map');
+const CUSTOM_KEY = 'japan2027-custom-activities';
+let customActivities = {}; // { dayN: [ {id,name,blurb,url,icon} ] }
+
+function buildActivityCard(a, id, custom){
+  const card = document.createElement('div');
+  card.className = 'act-card';
+  const visualHtml = a.file
+    ? `<img class="act-photo" loading="lazy" src="${wmImg(a.file,500)}" alt="${a.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+       <div class="act-visual" style="display:none">${ICONS[a.icon] || ICONS.temple}</div>`
+    : `<div class="act-visual">${ICONS[a.icon] || ICONS.temple}</div>`;
+  card.innerHTML = `
+    ${visualHtml}
+    ${custom ? `<button class="act-remove" title="Remove this activity">✕</button>` : ''}
+    <div class="act-body">
+      <p class="act-name">${a.name}</p>
+      <p class="act-blurb">${a.blurb||''}</p>
+      <div class="act-foot">
+        <div class="decision" data-id="${id}">
+          <button class="dbtn sel-keep" data-v="keep" title="Keep">✓</button>
+          <button class="dbtn sel-maybe" data-v="maybe" title="Maybe">?</button>
+          <button class="dbtn sel-skip" data-v="skip" title="Skip">✕</button>
+        </div>
+        ${a.url ? `<a class="act-link" href="${a.url}" target="_blank" rel="noopener">More info ↗</a>` : ''}
+      </div>
+    </div>
+  `;
+  if(custom) card.dataset.customId = id;
+  return card;
+}
+
+const ICON_OPTIONS = Object.keys(ICONS);
+
 days.forEach(d=>{
   const dayEl = document.createElement('div');
   dayEl.className = 'day' + (d.city==='kansai' ? ' kansai' : '');
@@ -472,41 +542,111 @@ days.forEach(d=>{
     </div>
     <p class="day-summary">${d.summary}</p>
     <div class="activities"></div>
+    <button class="add-card" data-day="${d.n}">+ Add an activity</button>
+    <div class="add-form" data-day="${d.n}" style="display:none">
+      <input type="text" class="af-name" placeholder="Activity name" maxlength="80">
+      <textarea class="af-blurb" placeholder="Short note (optional)" maxlength="200"></textarea>
+      <div class="add-form-row">
+        <select class="af-icon">${ICON_OPTIONS.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
+        <input type="url" class="af-url" placeholder="Link (optional)">
+      </div>
+      <div class="add-form-actions">
+        <button class="btn-cancel" data-day="${d.n}">Cancel</button>
+        <button class="btn-save" data-day="${d.n}">Add</button>
+      </div>
+    </div>
     <div class="day-meta"><span><b>Est. cost (2):</b> ${d.meta.cost}</span></div>
     ${d.meta.tip ? `<div class="day-tip">💡 ${d.meta.tip}</div>` : ''}
   `;
   const actWrap = dayEl.querySelector('.activities');
   d.activities.forEach((a,i)=>{
-    const id = 'act_' + d.n + '_' + i;
-    const card = document.createElement('div');
-    card.className = 'act-card';
-    const visualHtml = a.file
-      ? `<img class="act-photo" loading="lazy" src="${wmImg(a.file,500)}" alt="${a.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-         <div class="act-visual" style="display:none">${ICONS[a.icon] || ICONS.temple}</div>`
-      : `<div class="act-visual">${ICONS[a.icon] || ICONS.temple}</div>`;
-    card.innerHTML = `
-      ${visualHtml}
-      <div class="act-body">
-        <p class="act-name">${a.name}</p>
-        <p class="act-blurb">${a.blurb||''}</p>
-        <div class="act-foot">
-          <div class="decision" data-id="${id}">
-            <button class="dbtn sel-keep" data-v="keep" title="Keep">✓</button>
-            <button class="dbtn sel-maybe" data-v="maybe" title="Maybe">?</button>
-            <button class="dbtn sel-skip" data-v="skip" title="Skip">✕</button>
-          </div>
-          ${a.url ? `<a class="act-link" href="${a.url}" target="_blank" rel="noopener">More info ↗</a>` : ''}
-        </div>
-      </div>
-    `;
-    actWrap.appendChild(card);
+    actWrap.appendChild(buildActivityCard(a, 'act_' + d.n + '_' + i, false));
   });
   map.appendChild(dayEl);
 });
 
+/* add-activity: toggle form */
+map.addEventListener('click', (e)=>{
+  const addBtn = e.target.closest('.add-card');
+  if(addBtn){
+    const day = addBtn.dataset.day;
+    addBtn.style.display = 'none';
+    map.querySelector(`.add-form[data-day="${day}"]`).style.display = 'flex';
+    return;
+  }
+  const cancelBtn = e.target.closest('.btn-cancel');
+  if(cancelBtn){
+    const day = cancelBtn.dataset.day;
+    const form = map.querySelector(`.add-form[data-day="${day}"]`);
+    form.style.display = 'none';
+    form.querySelector('.af-name').value = '';
+    form.querySelector('.af-blurb').value = '';
+    form.querySelector('.af-url').value = '';
+    map.querySelector(`.add-card[data-day="${day}"]`).style.display = 'block';
+    return;
+  }
+  const removeBtn = e.target.closest('.act-remove');
+  if(removeBtn){
+    const card = removeBtn.closest('.act-card');
+    const day = card.closest('.day').querySelector('.add-card').dataset.day;
+    const customId = card.dataset.customId;
+    customActivities[day] = (customActivities[day]||[]).filter(a=>a.id !== customId);
+    delete decisions[customId];
+    card.remove();
+    persistCustom();
+    persistDecisions();
+    return;
+  }
+});
+
+map.addEventListener('click', async (e)=>{
+  const saveBtn = e.target.closest('.btn-save');
+  if(!saveBtn) return;
+  const day = saveBtn.dataset.day;
+  const form = map.querySelector(`.add-form[data-day="${day}"]`);
+  const name = form.querySelector('.af-name').value.trim();
+  if(!name){ form.querySelector('.af-name').focus(); return; }
+  const blurb = form.querySelector('.af-blurb').value.trim();
+  const url = form.querySelector('.af-url').value.trim();
+  const icon = form.querySelector('.af-icon').value;
+  const id = 'custom_' + day + '_' + Date.now();
+  const activity = {id, name, blurb, url: url || undefined, icon};
+  customActivities[day] = customActivities[day] || [];
+  customActivities[day].push(activity);
+  const dayEl = [...document.querySelectorAll('.day')].find(el=>el.querySelector('.add-card').dataset.day === day);
+  dayEl.querySelector('.activities').appendChild(buildActivityCard(activity, id, true));
+  form.style.display = 'none';
+  form.querySelector('.af-name').value = '';
+  form.querySelector('.af-blurb').value = '';
+  form.querySelector('.af-url').value = '';
+  map.querySelector(`.add-card[data-day="${day}"]`).style.display = 'block';
+  await persistCustom();
+});
+
+async function persistCustom(){
+  try{ await window.storage.set(CUSTOM_KEY, JSON.stringify(customActivities)); }catch(err){}
+}
+async function loadCustomActivities(){
+  try{
+    const r = await window.storage.get(CUSTOM_KEY);
+    customActivities = r ? JSON.parse(r.value) : {};
+  }catch(e){ customActivities = {}; }
+  Object.keys(customActivities).forEach(day=>{
+    const dayEl = [...document.querySelectorAll('.day')].find(el=>el.querySelector('.add-card').dataset.day === day);
+    if(!dayEl) return;
+    customActivities[day].forEach(a=>{
+      dayEl.querySelector('.activities').appendChild(buildActivityCard(a, a.id, true));
+    });
+  });
+  applyDecisionsToUI();
+}
+
 /* decision toggle logic + persistence */
 const DECISIONS_KEY = 'japan2027-activity-decisions';
 let decisions = {};
+async function persistDecisions(){
+  try{ await window.storage.set(DECISIONS_KEY, JSON.stringify(decisions)); }catch(err){}
+}
 async function loadDecisions(){
   try{
     const r = await window.storage.get(DECISIONS_KEY);
@@ -532,9 +672,10 @@ document.getElementById('itinerary-map').addEventListener('click', async (e)=>{
   decisions[id] = (decisions[id] === v) ? undefined : v;
   if(decisions[id] === undefined) delete decisions[id];
   applyDecisionsToUI();
-  try{ await window.storage.set(DECISIONS_KEY, JSON.stringify(decisions)); }catch(err){}
+  await persistDecisions();
 });
-loadDecisions();
+loadDecisions().then(loadCustomActivities);
+
 
 /* ---------------- tabs ---------------- */
 document.querySelectorAll('.tab-btn').forEach(btn=>{
