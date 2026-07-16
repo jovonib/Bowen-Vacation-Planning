@@ -42,15 +42,17 @@ body{
 
 /* ---------- SEIGAIHA WAVE DIVIDER ---------- */
 .wave-divider{
-  height:26px;
-  margin-top:0;
-  background-image:
-    radial-gradient(circle at 14px 22px, transparent 11px, var(--vermillion) 11.5px, var(--vermillion) 14.5px, transparent 15px),
-    radial-gradient(circle at 28px 9px, transparent 11px, var(--indigo) 11.5px, var(--indigo) 14.5px, transparent 15px);
-  background-size:28px 28px;
-  background-position:0 0;
-  background-repeat:repeat-x;
-  opacity:0.85;
+  height:1px;
+  margin:12px 0;
+  background:linear-gradient(90deg, transparent, var(--ink-soft) 12%, var(--ink-soft) 88%, transparent);
+  position:relative;
+}
+.wave-divider::before{
+  content:'◆';
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%) rotate(0deg);
+  color:var(--vermillion);background:var(--paper);
+  padding:0 12px;font-size:11px;line-height:1;
 }
 
 /* ---------- HEADER (boarding pass) ---------- */
