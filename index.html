@@ -686,6 +686,55 @@ table.budget-table tr:last-child td{border-bottom:none;}
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+<script>
+/* ---------------- Firebase-backed shared storage ---------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCUc7yC9j1jmZ69SkYEKiyHjY6R4R5S9I0",
+  authDomain: "japan-trip-dashboard-2e77b.firebaseapp.com",
+  databaseURL: "https://japan-trip-dashboard-2e77b-default-rtdb.firebaseio.com",
+  projectId: "japan-trip-dashboard-2e77b",
+  storageBucket: "japan-trip-dashboard-2e77b.firebasestorage.app",
+  messagingSenderId: "1022420151591",
+  appId: "1:1022420151591:web:61ff0791163509e7164d02"
+};
+firebase.initializeApp(firebaseConfig);
+const fbdb = firebase.database();
+
+/* shared=true  -> Firebase Realtime Database (synced between both of you)
+   shared=false -> localStorage (stays on this device only, e.g. your name) */
+window.storage = {
+  async get(key, shared){
+    if(shared){
+      try{
+        const snap = await fbdb.ref('data/' + key).once('value');
+        const val = snap.val();
+        if(val === null || val === undefined) return null;
+        return { key, value: val, shared: true };
+      }catch(e){ return null; }
+    }
+    try{
+      const val = localStorage.getItem('japan2027_' + key);
+      if(val === null) return null;
+      return { key, value: val, shared: false };
+    }catch(e){ return null; }
+  },
+  async set(key, value, shared){
+    if(shared){
+      try{
+        await fbdb.ref('data/' + key).set(value);
+        return { key, value, shared: true };
+      }catch(e){ return null; }
+    }
+    try{
+      localStorage.setItem('japan2027_' + key, value);
+      return { key, value, shared: false };
+    }catch(e){ return null; }
+  }
+};
+</script>
+
 <script>
 /* ---------------- helpers ---------------- */
 function wmImg(filename, width){
