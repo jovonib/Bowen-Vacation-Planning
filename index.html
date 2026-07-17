@@ -194,6 +194,22 @@ body{
   border:1px solid var(--line);border-radius:5px;background:var(--paper);color:var(--ink);
 }
 #airport-buffer-note{display:none;margin-top:12px;font-size:12.5px;border-radius:4px;padding:10px 14px;font-weight:600;}
+.reservation-row{
+  display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;
+}
+.reservation-row:last-child{border-bottom:none;}
+.reservation-row .rchk{
+  width:20px;height:20px;border-radius:3px;border:2px solid var(--gold);cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;background:var(--paper);font-size:12px;color:#fff;
+}
+.reservation-row .rchk.on{background:var(--suica);border-color:var(--suica);}
+.reservation-row .rname{flex:1;}
+.reservation-row .rday{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);white-space:nowrap;}
+.reservations-empty{font-size:12.5px;color:var(--ink-soft);font-style:italic;}
+.reservation-section-label{
+  font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;
+  color:var(--ink-soft);margin:4px 0 2px 0;
+}
 
 /* ---------- ITINERARY: line-map ---------- */
 .line-map{position:relative;padding-left:46px;}
@@ -281,6 +297,12 @@ body{
 .day.kansai .act-time{color:var(--persimmon);}
 .act-transit-note{color:var(--ink-soft);font-family:'IBM Plex Sans',sans-serif;}
 .act-blurb{font-size:12.5px;color:var(--ink-soft);line-height:1.45;margin:0 0 8px 0;flex:1;}
+.book-toggle{
+  display:block;width:100%;text-align:left;margin-bottom:8px;
+  border:1px solid var(--gold);background:var(--paper);color:var(--gold);
+  border-radius:4px;padding:5px 9px;font-size:11.5px;font-weight:600;cursor:pointer;
+}
+.book-toggle.booked{background:var(--suica-soft);border-color:var(--suica);color:var(--suica);}
 .act-cost-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
 .act-cost{
   font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--suica);
@@ -434,16 +456,44 @@ table.budget-table tr:last-child td{border-bottom:none;}
 .sav-stat .num{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--suica);}
 .sav-stat .lbl{font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.05em;}
 .savings-mode-toggle{display:flex;gap:8px;margin-bottom:18px;}
+.pace-banner{
+  font-size:12.5px;font-weight:600;border-radius:4px;padding:10px 14px;margin-bottom:16px;
+  border-left:3px solid var(--indigo);
+}
+.lump-section{margin-bottom:26px;}
+.lump-heading{
+  font-family:'Shippori Mincho',serif;font-size:15px;margin:0 0 4px 0;color:var(--ink);
+  display:flex;align-items:center;gap:8px;
+}
+.lump-heading .sec-total{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-soft);margin-left:auto;}
+.lump-row{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:9px 12px;font-size:12.5px;border-bottom:1px solid var(--line);
+}
+.lump-row:last-child{border-bottom:none;}
+.lump-row-label{color:var(--ink-soft);}
+.lump-row-amt{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--suica);}
+.lump-remove{
+  background:none;border:1px solid var(--line);border-radius:4px;width:22px;height:22px;
+  cursor:pointer;color:var(--ink-soft);font-size:10.5px;flex-shrink:0;
+}
+.lump-remove:hover{color:var(--alert);border-color:var(--alert);}
 .progress-outer{background:var(--indigo-soft);border-radius:4px;height:20px;overflow:hidden;margin-bottom:6px;position:relative;}
 .progress-inner{height:100%;background:var(--suica);border-radius:4px 0 0 4px;transition:width .3s;}
 .progress-marks{position:relative;height:14px;margin-bottom:20px;font-size:10px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
 .progress-marks span{position:absolute;transform:translateX(-50%);}
 .periods{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto;padding-right:4px;border:1px solid var(--line);border-radius:4px;background:var(--paper-card);}
 .period-row{
-  display:grid;grid-template-columns:26px 90px 1fr 70px;align-items:center;gap:10px;
+  display:grid;grid-template-columns:26px 1fr 92px 92px;align-items:center;gap:8px;
   padding:9px 12px;font-size:12.5px;border-bottom:1px solid var(--line);
 }
 .period-row:last-child{border-bottom:none;}
+.period-header{
+  font-size:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:700;
+  color:var(--ink-soft);background:var(--paper);position:sticky;top:0;
+}
+.pamt-contrib{text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--indigo);}
+.day.kansai .pamt-contrib{color:var(--persimmon);}
 .pchk{
   width:20px;height:20px;border-radius:3px;border:2px solid var(--line);cursor:pointer;
   display:flex;align-items:center;justify-content:center;background:var(--paper);
@@ -455,6 +505,18 @@ table.budget-table tr:last-child td{border-bottom:none;}
 .pamt{text-align:right;font-family:'IBM Plex Mono',monospace;}
 
 .footnote{font-size:11.5px;color:var(--ink-soft);margin-top:16px;line-height:1.5;}
+.luggage-tips{margin:0 0 24px 0;padding-left:0;list-style:none;counter-reset:lug;}
+.luggage-tips li{
+  counter-increment:lug;position:relative;padding:10px 12px 10px 40px;font-size:13px;line-height:1.55;
+  color:var(--ink-soft);border-bottom:1px solid var(--line);
+}
+.luggage-tips li:last-child{border-bottom:none;}
+.luggage-tips li::before{
+  content:counter(lug);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:3px;
+  background:var(--indigo);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+}
+.luggage-tips li b{color:var(--ink);}
 .log-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 12px;font-size:12.5px;border-bottom:1px solid var(--line);}
 .log-row:last-child{border-bottom:none;}
 .log-who{font-weight:700;color:var(--indigo);font-family:'Shippori Mincho',serif;}
@@ -525,7 +587,7 @@ table.budget-table tr:last-child td{border-bottom:none;}
   table.budget-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   table.budget-table tr{display:table-row;}
   .bar-row{grid-template-columns:110px 1fr 70px;}
-  .period-row{grid-template-columns:22px 74px 1fr 60px;font-size:11.5px;}
+  .period-row{grid-template-columns:20px 1fr 66px 66px;font-size:10.5px;gap:5px;}
 }
 </style>
 </head>
@@ -534,14 +596,14 @@ table.budget-table tr:last-child td{border-bottom:none;}
 
   <div class="pass">
     <div class="hanko">旅</div>
-    <div class="pass-route">TPA <span class="dot"></span> HND · KIX <span class="dot"></span> TPA</div>
+    <div class="pass-route">TPA <span class="dot"></span> HND <span class="dot"></span> TPA · ROUND-TRIP</div>
     <h1>Jovoni &amp; Saraiyah's <span style="color:#FF9EB0;">♥</span> Japan Trip 2027</h1>
-    <div class="pass-sub">Confirmed dates: September 20 – 30, 2027 · Tokyo (5N) → Osaka (4N) with day trips to Kyoto &amp; Nara</div>
+    <div class="pass-sub">Confirmed dates: September 20 – October 1, 2027 · Tokyo (5N) → Osaka (4N) → Tokyo (1N), with day trips to Kyoto &amp; Nara</div>
     <div class="pass-stats">
-      <div class="pass-stat"><div class="num">11</div><div class="lbl">Days</div></div>
+      <div class="pass-stat"><div class="num">12</div><div class="lbl">Days</div></div>
       <div class="pass-stat"><div class="num" id="stat-hotel-nights">9</div><div class="lbl">Hotel nights</div></div>
       <div class="pass-stat"><div class="num">3</div><div class="lbl">Cities</div></div>
-      <div class="pass-stat"><div class="num">Sep 20–30</div><div class="lbl">Travel Dates</div></div>
+      <div class="pass-stat"><div class="num">Sep 20–Oct 1</div><div class="lbl">Travel Dates</div></div>
     </div>
   </div>
   <div class="wave-divider"></div>
@@ -552,6 +614,8 @@ table.budget-table tr:last-child td{border-bottom:none;}
     <button class="tab-btn" data-tab="budget"><span class="stop"></span>Budget</button>
     <button class="tab-btn" data-tab="savings"><span class="stop"></span>Savings</button>
     <button class="tab-btn" data-tab="activity"><span class="stop"></span>Activity</button>
+    <button class="tab-btn" data-tab="luggage"><span class="stop"></span>Luggage</button>
+    <button class="tab-btn" data-tab="info"><span class="stop"></span>Info</button>
   </div>
 
   <!-- OVERVIEW -->
@@ -563,11 +627,11 @@ table.budget-table tr:last-child td{border-bottom:none;}
       </div>
       <div class="info-card">
         <h3>Flights</h3>
-        <p>Delta TPA→HND (in), United KIX→TPA (out) — open-jaw, priced as two one-ways. Premium Economy base case.</p>
+        <p>Delta round-trip, Tampa ↔ Haneda — booked as one round-trip fare instead of two separate one-ways, which saves real money over the open-jaw routing. Premium Economy base case.</p>
       </div>
       <div class="info-card">
         <h3>Stays</h3>
-        <p id="overview-stays">JW Marriott Tokyo (Takanawa, 5N) → The Osaka Station Hotel, Autograph Collection (4N).</p>
+        <p id="overview-stays">JW Marriott Tokyo (Takanawa, 5N) → The Osaka Station Hotel, Autograph Collection (4N) → Tokyo Marriott Hotel (Shinagawa, 1N).</p>
       </div>
     </div>
     <div class="card-row">
@@ -591,8 +655,13 @@ table.budget-table tr:last-child td{border-bottom:none;}
       <div class="flight-panel-row">
         <label>Depart Tampa (Day 1)<input type="time" id="ft-tpa-depart"></label>
         <label>Arrive Haneda (Day 2)<input type="time" id="ft-hnd-arrive"></label>
-        <label>Depart Kansai/KIX (Day 11)<input type="time" id="ft-kix-depart"></label>
+        <label>Depart Haneda (Day 12)<input type="time" id="ft-kix-depart"></label>
       </div>
+    </div>
+    <div class="flight-panel" id="reservations-panel">
+      <h4>📌 Bookings &amp; reservations</h4>
+      <div class="sub">Flights and hotels first, then anything below that needs booking ahead of time — check items off here as you go, or use the "Needs booking" button directly on an activity card.</div>
+      <div id="reservations-list"></div>
     </div>
     <div class="line-map" id="itinerary-map"></div>
   </div>
@@ -648,22 +717,149 @@ table.budget-table tr:last-child td{border-bottom:none;}
       <button class="toggle-btn" data-savemode="business">Save toward Business / First</button>
     </div>
     <div class="savings-summary">
-      <div class="sav-stat"><div class="num" id="sav-saved">$0</div><div class="lbl">Marked contributed</div></div>
+      <div class="sav-stat"><div class="num" id="sav-biweekly">$665</div><div class="lbl">Biweekly amount needed</div></div>
+      <div class="sav-stat"><div class="num" id="sav-saved">$0</div><div class="lbl">Total saved</div></div>
       <div class="sav-stat"><div class="num" id="sav-target">$13,346</div><div class="lbl">Current target total</div></div>
       <div class="sav-stat"><div class="num" id="sav-remaining">$13,346</div><div class="lbl">Remaining to target</div></div>
-      <div class="sav-stat"><div class="num" id="sav-periods">0 / 24</div><div class="lbl">Periods checked off</div></div>
+      <div class="sav-stat"><div class="num" id="sav-periods">0 / 24</div><div class="lbl">Biweekly periods checked off</div></div>
+      <div class="sav-stat"><div class="num" id="sav-lump-total">$0</div><div class="lbl">From extra contributions</div></div>
     </div>
+    <p class="pace-banner" id="biweekly-detail"></p>
     <div class="progress-outer"><div class="progress-inner" id="sav-progress-bar" style="width:0%"></div></div>
-    <div class="progress-marks" id="sav-marks"></div>
+
+    <div class="lump-section">
+      <h4 class="lump-heading">Extra contributions <span class="sec-total" id="lump-section-total"></span></h4>
+      <p class="act-skip-note">One-off amounts on top of the regular biweekly plan — a tax refund, a bonus, whatever comes in sporadically.</p>
+      <div class="periods" id="lump-list" style="margin-bottom:10px;"></div>
+      <button class="add-card" id="add-lump-btn">+ Add an extra contribution</button>
+      <div class="add-form" id="lump-form" style="display:none;">
+        <div class="add-form-row">
+          <input type="number" id="lump-amount" placeholder="Amount ($)" min="0" step="10" style="flex:0 0 140px;">
+          <input type="text" id="lump-label" placeholder="What's this from? (optional)" style="flex:1 1 200px;">
+        </div>
+        <div class="add-form-actions">
+          <button class="btn-cancel" id="lump-cancel-btn">Cancel</button>
+          <button class="btn-save" id="lump-save-btn">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <h4 class="lump-heading" style="margin-top:24px;">Biweekly plan</h4>
     <div class="periods" id="periods-list"></div>
-    <p class="footnote">Personal $315 + BAG consulting $350 = $665 every two weeks, Nov 2, 2026 → Sept 20, 2027 (24 periods). The target above updates live with whatever's in the Budget tab for the selected fare class — check off a period once that contribution has actually landed. Shared between you both.</p>
+    <p class="footnote">The biweekly amount recalculates automatically: (current target − extra contributions) ÷ 24 periods, Nov 2, 2026 → Sept 20, 2027 — so the plan always lands exactly on target by the last period, whatever the target is. BAG consulting income ($350/period) is assumed to cover part of it; the rest is what to actually set aside yourself. Shared between you both.</p>
+    <p class="footnote" style="margin-top:6px;">Note: unchecking an earlier period, or checking periods out of order, is fine — this just recalculates the whole schedule from the current numbers rather than tracking a specific date-by-date plan you locked in before.</p>
   </div>
 
   <!-- ACTIVITY LOG -->
   <div class="panel" id="panel-activity">
+    <div class="flight-panel" style="margin-bottom:20px;">
+      <h4>💾 Backup your data</h4>
+      <div class="sub">Your data lives in a shared database with no password protecting it — a quick export gives you a local copy in case anything ever gets accidentally deleted or overwritten.</div>
+      <button class="add-hotel-btn" id="export-data-btn" style="margin-top:10px;">⬇ Export everything as a backup file</button>
+    </div>
     <h3 style="font-family:'Shippori Mincho',serif;font-size:16px;margin:0 0 4px 0;">Edit history</h3>
     <p class="act-skip-note" style="margin-bottom:14px;">Every change either of you makes shows up here, newest first.</p>
     <div class="periods" id="activity-log-list" style="max-height:520px;"></div>
+  </div>
+
+  <!-- LUGGAGE -->
+  <div class="panel" id="panel-luggage">
+    <div class="info-card" style="margin-bottom:20px;">
+      <h3>What is takuhaibin?</h3>
+      <p>Japan's hotel-to-hotel luggage forwarding is genuinely mainstream — locals use it constantly, and with a transit-only trip like yours it's close to essential rather than a splurge. You hand your bag to a courier (almost always <b>Yamato Transport</b>, branded "kuroneko" / black cat) at your hotel's front desk in the morning, and it shows up at your next hotel by the following day. You carry only a day bag while it travels separately.</p>
+    </div>
+
+    <div class="card-row">
+      <div class="info-card">
+        <h3>Leg 1 — Tokyo → Osaka</h3>
+        <p><b>Drop off:</b> Morning of Day 7, at the JW Marriott Tokyo bell desk.<br>
+        <b>Arrives:</b> Osaka Station Hotel, typically by early evening the same day or the following morning — confirm the same-day cutoff time when you drop it off (usually needs to be handed over by mid-morning).<br>
+        <b>Cost:</b> ~¥2,000–3,000 per bag (~$14–20) — roughly $30–40 for two large bags.</p>
+      </div>
+      <div class="info-card">
+        <h3>Leg 2 — Osaka → Tokyo</h3>
+        <p><b>Drop off:</b> Morning of Day 11, at the Osaka Station Hotel front desk.<br>
+        <b>Arrives:</b> Tokyo Marriott Hotel (Shinagawa) — your final-night hotel, a different property from where you started — typically next-morning rather than same-day for this direction. Since you're staying that extra night now, this is no longer time pressure like it would've been on a same-day departure.<br>
+        <b>Cost:</b> Same ~$14–20 per bag, ~$30–40 for two.</p>
+      </div>
+    </div>
+
+    <div class="info-card" style="margin-bottom:20px;">
+      <h3>Day 12 — no forwarding needed</h3>
+      <p>Since you're already at the Tokyo Marriott Hotel the night before your flight, the final hop to Haneda is just a short Keikyu Line ride or taxi — carry your bags yourselves that morning rather than paying to forward them one more time. This is the one leg of the trip where forwarding isn't worth it.</p>
+    </div>
+
+    <h4 class="lump-heading">Good to know before you go</h4>
+    <ol class="luggage-tips">
+      <li><b>Book at the front desk, or a convenience store.</b> Upscale hotels like the JW Marriott and Osaka Station Hotel typically handle takuhaibin directly at the concierge or bell desk. If a hotel doesn't, any 7-Eleven, Family Mart, or Lawson can process a Yamato drop-off — just ask for "takkyubin" (宅急便).</li>
+      <li><b>Same-day vs. next-day matters.</b> Same-day delivery (bag arrives that evening) usually requires drop-off by mid-morning, often around 10–11am. Miss that window and it becomes next-day. Plan your Day 7 and Day 11 mornings with this in mind if you want your bags waiting when you arrive.</li>
+      <li><b>The Shinkansen oversized-baggage rule.</b> On the Tokaido/Sanyo line (your Tokyo↔Osaka route), any bag with total dimensions (height + width + depth) over 160cm technically needs a free advance seat reservation in the space behind the last row, or you risk a fee if you're carrying it yourself. Forwarding sidesteps this entirely — one more reason to use it rather than wheel large suitcases onto the train.</li>
+      <li><b>Cash helps.</b> Some hotel-desk and convenience-store takuhaibin counters are cash-preferred for the courier fee, so keep enough yen on hand for both legs (~¥6,000–8,000 total for two bags across both drop-offs is a safe cushion).</li>
+      <li><b>Station lockers are a different tool.</b> Coin lockers (¥300–700) are everywhere and great for day-trip storage (e.g., stashing bags while you explore Kyoto or Nara for the day), but they don't move your luggage between cities — that's what forwarding is for.</li>
+      <li><b>Pack a real day bag.</b> Since your main luggage travels separately and you won't see it again until the next hotel, keep a backpack with a change of clothes, chargers, medication, and anything you need same-day — sized to fit under a train seat, since you'll be carrying it through every transit-heavy day.</li>
+      <li><b>Label everything.</b> Hotels will ask for your name and next hotel's address — having the Osaka Station Hotel and Tokyo Marriott Hotel confirmation details handy (address, phone number, check-in date) speeds this up at both counters.</li>
+    </ol>
+
+    <p class="footnote">Total luggage forwarding cost for the trip (both legs, two bags) is estimated at ~$70 and already included in the Budget tab under "Other fixed costs" — adjust it there if your actual costs come in different.</p>
+  </div>
+
+  <!-- INFO -->
+  <div class="panel" id="panel-info">
+    <h4 class="lump-heading">Emergency &amp; entry</h4>
+    <div class="card-row" style="margin-bottom:20px;">
+      <div class="info-card">
+        <h3>Emergency numbers</h3>
+        <p><b>110</b> — Police<br><b>119</b> — Fire / Ambulance<br>Japan doesn't have a single "911" — these are separate numbers.</p>
+      </div>
+      <div class="info-card">
+        <h3>Visit Japan Web</h3>
+        <p>Register before you fly at <a href="https://vjw-lp.digital.go.jp/en/" target="_blank" rel="noopener" style="color:var(--indigo);">vjw-lp.digital.go.jp</a> to pre-fill immigration and customs forms — gives you a QR code for faster arrival processing at Haneda. US citizens don't need a visa for stays under 90 days, just a valid passport.</p>
+      </div>
+    </div>
+
+    <h4 class="lump-heading">Hotel contacts</h4>
+    <div class="card-row" style="margin-bottom:20px;">
+      <div class="info-card">
+        <h3>JW Marriott Hotel Tokyo</h3>
+        <p>Takanawa Gateway City, Minato — 1-min walk from Takanawa Gateway Station.<br><b>Phone:</b> +81-3-3434-7070</p>
+      </div>
+      <div class="info-card">
+        <h3>Osaka Station Hotel</h3>
+        <p>JP Tower Osaka, 3-2-2 Umeda, Kita Ward — directly connected to JR Osaka Station.<br><b>Phone:</b> confirm on your booking confirmation.</p>
+      </div>
+      <div class="info-card">
+        <h3>Tokyo Marriott Hotel</h3>
+        <p>Shinagawa, near Gotenyama Garden — a short walk from Shinagawa Station.<br><b>Phone:</b> confirm on your booking confirmation.</p>
+      </div>
+    </div>
+
+    <h4 class="lump-heading">Currency &amp; staying connected</h4>
+    <div class="card-row" style="margin-bottom:20px;">
+      <div class="info-card">
+        <h3>Money</h3>
+        <p>Japan is more cash-reliant than the US, especially at temples, small restaurants, and takuhaibin counters. 7-Eleven ATMs are the most reliable for foreign card withdrawals. Tipping isn't customary and can cause confusion if offered. Notify your card companies of your travel dates before you leave.</p>
+      </div>
+      <div class="info-card">
+        <h3>Connectivity</h3>
+        <p>An eSIM (Airalo, Ubigi, or similar) is the easiest option — install before you leave, activate on arrival. Pocket WiFi rental is a solid alternative if you'd rather share one connection. Don't rely on free hotel/station WiFi for navigation — it's inconsistent.</p>
+      </div>
+      <div class="info-card">
+        <h3>Electrical &amp; time zone</h3>
+        <p>Japan runs on 100V, Type A plugs (same shape as the US) — most electronics work without a converter. Japan is 13 hours ahead of Eastern Time (14 during US Daylight Saving, since Japan doesn't observe DST).</p>
+      </div>
+    </div>
+
+    <h4 class="lump-heading">Packing checklist <span class="sec-total" id="packing-progress"></span></h4>
+    <div class="periods" id="packing-list" style="margin-bottom:10px;"></div>
+    <button class="add-card" id="add-packing-btn">+ Add an item</button>
+    <div class="add-form" id="packing-form" style="display:none;">
+      <input type="text" id="packing-input" placeholder="Item">
+      <div class="add-form-actions">
+        <button class="btn-cancel" id="packing-cancel-btn">Cancel</button>
+        <button class="btn-save" id="packing-save-btn">Add</button>
+      </div>
+    </div>
+    <p class="footnote">Shared between you both — check off as you pack.</p>
   </div>
 
   <div class="wave-divider" style="margin-top:32px;"></div>
@@ -788,7 +984,7 @@ const days = [
   { n:3, city:'tokyo', date:'Wed Sep 22', title:'Central Tokyo', summary:'Asakusa → teamLab Planets → Shibuya → Shinjuku.',
     activities:[
       {name:'Senso-ji Temple, Asakusa', icon:'temple', file:'Sensoji 2023.jpg', blurb:"Tokyo's oldest temple; Nakamise-dori shopping street leads up to it.", url:'https://www.senso-ji.jp/english/', cost:0, duration:90, transit:{mins:0}},
-      {name:'teamLab Planets', icon:'museum', file:'At teamLab Planets (48277798316).jpg', blurb:'Barefoot, body-immersive digital art. Book online — sells out days ahead.', url:'https://www.teamlab.art/e/planets/', cost:65, duration:120, transit:{mins:40,label:'subway'}},
+      {name:'teamLab Planets', icon:'museum', file:'At teamLab Planets (48277798316).jpg', blurb:'Barefoot, body-immersive digital art. Book online — sells out days ahead.', url:'https://www.teamlab.art/e/planets/', cost:55, duration:120, transit:{mins:40,label:'subway'}, needsBooking:true},
       {name:'Shibuya Crossing at dusk', icon:'crossing', file:'2025 Shibuya Crossing at night.jpg', blurb:"The world's busiest pedestrian crossing, best as the lights come on. Free afternoon beforehand for lunch/rest.", url:'https://en.wikipedia.org/wiki/Shibuya_Crossing', cost:0, duration:30, transit:{mins:35,label:'subway'}, fixedStart:'18:00'} ],
     meta:{tip:'Book teamLab Planets before you leave home.'} },
 
@@ -815,7 +1011,7 @@ const days = [
 
   { n:7, city:'kansai', date:'Sun Sep 26', title:'Tokyo → Osaka + Fushimi Inari', summary:'Shinkansen to Shin-Osaka, check into The Osaka Station Hotel, then a same-day dash to Fushimi Inari.',
     activities:[
-      {name:'Shinkansen to Shin-Osaka', icon:'transit', blurb:'Nozomi, reserved seats, ~2h30–3h, plus the short local transfer to Osaka Station.', url:'https://global.jr-central.co.jp/en/', cost:200, duration:165, transit:{mins:0}},
+      {name:'Shinkansen to Shin-Osaka', icon:'transit', blurb:'Nozomi, reserved seats, ~2h30–3h, plus the short local transfer to Osaka Station.', url:'https://global.jr-central.co.jp/en/', cost:200, duration:165, transit:{mins:0}, needsBooking:true},
       {name:'Fushimi Inari Shrine', icon:'temple', file:'FushimiInariTorii.jpg', blurb:'Thousands of vermilion torii gates climbing the mountain — walk as far as you like.', url:'https://en.wikipedia.org/wiki/Fushimi_Inari-taisha', cost:0, duration:90, transit:{mins:30,label:'rail'}} ],
     meta:{tip:'Buy Shinkansen reserved seats in advance — you\u2019ll be traveling with luggage.'} },
 
@@ -823,7 +1019,7 @@ const days = [
     activities:[
       {name:'Kinkaku-ji, the Golden Pavilion', icon:'temple', file:'Golden pavilion, Kinkakuji.jpg', blurb:'A gold-leafed pavilion reflected in its pond — go early.', url:'https://en.wikipedia.org/wiki/Kinkaku-ji', cost:20, duration:60, transit:{mins:30,label:'rail'}},
       {name:'Arashiyama bamboo grove', icon:'garden', file:'Arashiyama Bamboo Grove (Unsplash).jpg', blurb:'A quiet, towering bamboo corridor, paired with Tenryu-ji Temple nearby.', url:'https://en.wikipedia.org/wiki/Arashiyama', cost:0, duration:60, transit:{mins:30,label:'rail/bus'}},
-      {name:'Kaiseki dinner', icon:'food', blurb:'Multi-course traditional dinner — reserve weeks ahead. Free afternoon beforehand.', url:'https://en.wikipedia.org/wiki/Kaiseki', cost:230, duration:120, transit:{mins:30,label:'rail'}, fixedStart:'18:30'} ],
+      {name:'Kaiseki dinner', icon:'food', blurb:'Multi-course traditional dinner — reserve weeks ahead. Free afternoon beforehand.', url:'https://en.wikipedia.org/wiki/Kaiseki', cost:230, duration:120, transit:{mins:30,label:'rail'}, fixedStart:'18:30', needsBooking:true} ],
     meta:{tip:'Reserve kaiseki at least a few weeks out.'} },
 
   { n:9, city:'kansai', date:'Tue Sep 28', title:'Nara Day Trip', summary:'Free-roaming deer at Nara Park, then Todai-ji\u2019s Great Buddha Hall.',
@@ -835,17 +1031,23 @@ const days = [
   { n:10, city:'kansai', date:'Wed Sep 29', title:'Kyoto: Gion & Culture', summary:'Morning walk through Gion, a tea ceremony, Nishiki Market lunch, sunset at Kiyomizu-dera.',
     activities:[
       {name:'Gion district', icon:'street', file:'JP-Kyoto-Gion-Area-Traditional-House-Night-View.JPG', blurb:'Historic wooden teahouse streets — Kyoto\u2019s geisha district. Cost includes round-trip rail.', url:'https://en.wikipedia.org/wiki/Gion,_Kyoto', cost:18, duration:60, transit:{mins:30,label:'rail'}},
-      {name:'Tea ceremony experience', icon:'food', blurb:'Book in advance — good sessions have limited daily slots.', url:'https://en.wikipedia.org/wiki/Japanese_tea_ceremony', cost:100, duration:60, transit:{mins:10,label:'walk'}},
+      {name:'Tea ceremony experience', icon:'food', blurb:'Book in advance — good sessions have limited daily slots.', url:'https://en.wikipedia.org/wiki/Japanese_tea_ceremony', cost:100, duration:60, transit:{mins:10,label:'walk'}, needsBooking:true},
       {name:'Nishiki Market', icon:'market', blurb:'Kyoto\u2019s kitchen — narrow arcade of food stalls for lunch and browsing.', url:'https://en.wikipedia.org/wiki/Nishiki_Market', cost:50, duration:60, transit:{mins:15,label:'walk/bus'}},
       {name:'Kiyomizu-dera at sunset', icon:'temple', file:'Kiyomizu-dera (24293628364).jpg', blurb:'Wooden temple stage with sweeping city views. Free afternoon beforehand for rest.', url:'https://en.wikipedia.org/wiki/Kiyomizu-dera', cost:9, duration:60, transit:{mins:15,label:'walk/bus'}, fixedStart:'17:30'} ],
     meta:{tip:'Book the tea ceremony online before the trip.'} },
 
-  { n:11, city:'kansai', date:'Thu Sep 30', title:'Osaka & Departure', summary:'Osaka Castle, Dotonbori street food, then Kansai Airport for the nonstop home.',
+  { n:11, city:'kansai', date:'Thu Sep 30', title:'Osaka → Back to Tokyo', summary:'Osaka Castle, a last taste of Dotonbori, then the Shinkansen back to Tokyo for one final night at the Tokyo Marriott Hotel — no rushing straight to the airport this time.',
     activities:[
       {name:'Osaka Castle', icon:'castle', file:'Osaka Castle 01bs3200.jpg', blurb:'Iconic keep tower set in a large park — a relaxed morning stop.', url:'https://en.wikipedia.org/wiki/Osaka_Castle', cost:11, duration:75, transit:{mins:0}},
-      {name:'Dotonbori', icon:'street', file:'Dotonbori, Osaka, at night, November 2016.jpg', blurb:'Neon canal district — takoyaki, okonomiyaki, and people-watching.', url:'https://en.wikipedia.org/wiki/D%C5%8Dtonbori', cost:50, duration:90, transit:{mins:20,label:'subway'}},
-      {name:'Kansai Airport (KIX) → United nonstop to SFO → Tampa', icon:'transit', blurb:'Haruka Express or limousine bus (~$60 for two) to the airport; the flight itself is tracked separately under Flights.', url:'https://www.united.com', cost:60, duration:50, transit:{mins:20,label:'subway to Osaka Sta.'}} ],
-    meta:{tip:'The easy version of a last day — short train to the airport, no backtracking to Tokyo.'} },
+      {name:'Dotonbori', icon:'street', file:'Dotonbori, Osaka, at night, November 2016.jpg', blurb:'A quick final round of takoyaki and okonomiyaki before heading to the station.', url:'https://en.wikipedia.org/wiki/D%C5%8Dtonbori', cost:50, duration:60, transit:{mins:20,label:'subway'}},
+      {name:'Shinkansen: Osaka → Tokyo', icon:'transit', blurb:'Nozomi, reserved seats, ~2h30–3h — the same route as Day 7, in reverse.', url:'https://global.jr-central.co.jp/en/', cost:200, duration:165, transit:{mins:25,label:'subway to Shin-Osaka Sta.'}, needsBooking:true},
+      {name:'Check into Tokyo Marriott Hotel', icon:'hotel', file:'Ginza area at dusk from Tokyo Tower.jpg', blurb:'A different property from your first 5 nights — this one\u2019s in Shinagawa, not Takanawa. Convenient since it\u2019s barely a 15-min ride from Haneda for tomorrow. Consider getting off the Shinkansen at Shinagawa Station instead of Tokyo Station — it\u2019s the closer stop and the hotel is practically next to it.', cost:20, duration:30, transit:{mins:10,label:'train from Shinagawa Sta.'}} ],
+    meta:{tip:'This extra night exists specifically so tomorrow morning isn\u2019t a scramble — enjoy a proper last dinner in Tokyo.'} },
+
+  { n:12, city:'tokyo', date:'Fri Oct 1', title:'Depart Tokyo', summary:'A relaxed final morning at the hotel, then the short hop to Haneda for the flight home — no Shinkansen, no backtracking, just breakfast and a train.',
+    activities:[
+      {name:'Haneda Airport → Depart for Tampa (Delta)', icon:'transit', blurb:'From Shinagawa this time, not Takanawa — a direct Keikyu Line train (~20 min) or taxi (~13 min, ~$35–50 for two) to Haneda, then the return flight — tracked separately under Flights.', url:'https://www.delta.com', cost:40, duration:45, transit:{mins:15,label:'taxi or Keikyu Line'}} ],
+    meta:{tip:'Check the buffer note below once your Haneda departure time is set — with no Shinkansen this time, there should be plenty of cushion.'} },
 ];
 
 /* ---------------- global state ---------------- */
@@ -858,6 +1060,8 @@ const FIXED_KEY = 'japan2027-fixed-extras';
 const BUFFERS_KEY = 'japan2027-buffers';
 const FLIGHTS_KEY = 'japan2027-flights';
 const FLIGHT_TIMES_KEY = 'japan2027-flight-times';
+const BOOKED_KEY = 'japan2027-booked-status';
+const PACKING_KEY = 'japan2027-packing-list';
 const SAVEMODE_KEY = 'japan2027-savings-mode';
 const IDENTITY_KEY = 'japan2027-my-name';
 const LOG_KEY = 'japan2027-edit-log';
@@ -867,25 +1071,91 @@ let decisions = {};          // { activityId: 'keep'|'maybe'|'skip' }
 let costOverrides = {};      // { activityId: number }  (edits to built-in activity costs)
 let customImages = {};       // { activityId: dataURL }
 let hotels = [
-  {id:'h1', name:'JW Marriott Hotel Tokyo', nights:5, rate:735},
-  {id:'h2', name:'The Osaka Station Hotel, Autograph Collection', nights:4, rate:600},
+  {id:'h1', name:'JW Marriott Hotel Tokyo', nights:5, rate:700},
+  {id:'h2', name:'The Osaka Station Hotel, Autograph Collection', nights:4, rate:580},
+  {id:'h3', name:'Tokyo Marriott Hotel', nights:1, rate:414},
 ];
-let fixedExtras = { subway:100, food:500, insurance:140, misc:450 };
+let fixedExtras = { subway:100, food:500, insurance:140, misc:450, luggage:70 };
 let buffers = { premium:0, business:0 };
 let fareMode = 'premium';
 let saveMode = 'premium';
 let myName = null;
 let editLog = [];
-let flightTimes = { tpaDepart:'09:35', hndArrive:'17:00', kixDepart:'16:00' };
+let flightTimes = { tpaDepart:'09:35', hndArrive:'17:00', kixDepart:'19:00' };
+let bookedStatus = {}; // { activityId: true }
+let packingList = []; // [{id, label, checked}]
 
-const DAY_START_DEFAULTS = {3:540, 4:510, 5:450, 6:570, 7:600, 8:480, 9:510, 10:510, 11:480};
+const DAY_START_DEFAULTS = {3:540, 4:510, 5:450, 6:570, 7:600, 8:480, 9:510, 10:510, 11:480, 12:540};
 
 let FLIGHTS = {
-  premium: {label:'Delta TPA→HND + United KIX→TPA, Premium Economy', low:4000, high:5600},
-  business: {label:'Delta TPA→HND + United KIX→TPA, Business/First', low:9200, high:14400},
+  premium: {label:'Delta round-trip, Tampa ↔ Haneda, Premium Economy', low:6500, high:7500},
+  business: {label:'Delta round-trip, Tampa ↔ Haneda, Business/First', low:8000, high:11500},
 };
 
 /* map of every rendered activity's live cost/decision, keyed by id, for budget math */
+function getReservationLabel(id){
+  if(id === 'flights') return FLIGHTS[fareMode].label;
+  if(id.startsWith('hotel_')){
+    const h = hotels.find(h=>'hotel_'+h.id === id);
+    return h ? `${h.name} (${h.nights}N)` : 'a hotel stay';
+  }
+  const days_ = days.find(d => id.startsWith('act_'+d.n+'_'));
+  if(days_){
+    const idx = Number(id.split('_')[2]);
+    const a = days_.activities[idx];
+    if(a) return a.name;
+  }
+  return 'this item';
+}
+function renderReservationsPanel(){
+  const wrap = document.getElementById('reservations-list');
+  if(!wrap) return;
+
+  const bigItems = [{id:'flights', name: FLIGHTS[fareMode].label, day:null}];
+  hotels.forEach(h=>{
+    bigItems.push({id:'hotel_'+h.id, name:`${h.name} (${h.nights}N)`, day:null});
+  });
+
+  const activityItems = [];
+  days.forEach(d=>{
+    d.activities.forEach((a,i)=>{
+      if(a.needsBooking) activityItems.push({id:'act_'+d.n+'_'+i, name:a.name, day:d.n});
+    });
+  });
+
+  function rowHtml(it){
+    const on = !!bookedStatus[it.id];
+    return `<div class="reservation-row">
+      <div class="rchk ${on?'on':''}" data-id="${it.id}">${on?'✓':''}</div>
+      <div class="rname">${it.name}</div>
+      <div class="rday">${it.day ? 'Day '+it.day : ''}</div>
+    </div>`;
+  }
+
+  let html = '<p class="reservation-section-label">Flights &amp; Hotels</p>';
+  html += bigItems.map(rowHtml).join('');
+  html += '<p class="reservation-section-label" style="margin-top:12px;">Activities</p>';
+  html += activityItems.length
+    ? activityItems.map(rowHtml).join('')
+    : '<p class="reservations-empty">Nothing flagged for advance booking right now.</p>';
+  wrap.innerHTML = html;
+}
+document.getElementById('reservations-list').addEventListener('click', async (e)=>{
+  const box = e.target.closest('.rchk');
+  if(!box) return;
+  const id = box.dataset.id;
+  bookedStatus[id] = !bookedStatus[id];
+  await persistBooked();
+  const name = getReservationLabel(id);
+  renderReservationsPanel();
+  const card = document.querySelector(`.act-card[data-act-id="${id}"] .book-toggle`);
+  if(card){
+    card.classList.toggle('booked', bookedStatus[id]);
+    card.textContent = bookedStatus[id] ? '✓ Booked' : '📌 Needs booking';
+  }
+  logEdit(bookedStatus[id] ? `marked "${name}" as booked` : `marked "${name}" as not yet booked`);
+});
+
 function getAllActivityEntries(){
   const entries = [];
   days.forEach(d=>{
@@ -966,7 +1236,9 @@ function renderSchedule(){
 function renderAirportBuffer(sched){
   const el = document.getElementById('airport-buffer-note');
   if(!el) return;
-  const s = sched['act_11_2'];
+  const departureDay = days.find(d=>d.n===12);
+  const lastIdx = departureDay.activities.length - 1;
+  const s = sched['act_12_' + lastIdx];
   if(!s){ el.style.display='none'; return; }
   const kixMins = timeToMinutes(flightTimes.kixDepart);
   const recommendedBy = kixMins - 180;
@@ -998,6 +1270,7 @@ function buildActivityCard(a, id, custom){
   }
   const baseCost = costOverrides[id] !== undefined ? costOverrides[id] : (a.cost||0);
   const costLabel = a.excludeFromBudget ? 'In flight total' : (baseCost > 0 ? fmt(baseCost) : 'Free');
+  const isBooked = !!bookedStatus[id];
   card.innerHTML = `
     ${visualHtml}
     <button class="act-photo-btn" title="Add your own photo">📷</button>
@@ -1007,6 +1280,10 @@ function buildActivityCard(a, id, custom){
       <p class="act-name">${a.name}</p>
       <div class="act-time"></div>
       <p class="act-blurb">${a.blurb||''}</p>
+      ${a.needsBooking ? `
+      <button class="book-toggle ${isBooked?'booked':''}" data-id="${id}" title="Mark whether you've booked this">
+        ${isBooked ? '✓ Booked' : '📌 Needs booking'}
+      </button>` : ''}
       <div class="act-cost-row">
         ${a.excludeFromBudget
           ? `<span class="act-cost" style="cursor:default;background:var(--indigo-soft);color:var(--indigo);">${costLabel}</span>`
@@ -1060,7 +1337,7 @@ days.forEach(d=>{
         <button class="btn-save" data-day="${d.n}">Add</button>
       </div>
     </div>
-    ${d.n===11 ? `<div id="airport-buffer-note"></div>` : ''}
+    ${d.n===12 ? `<div id="airport-buffer-note"></div>` : ''}
     ${d.meta.tip ? `<div class="day-tip">💡 ${d.meta.tip}</div>` : ''}
   `;
   const actWrap = dayEl.querySelector('.activities');
@@ -1112,6 +1389,18 @@ map.addEventListener('click', (e)=>{
   const costEl = e.target.closest('.act-cost');
   if(costEl && costEl.dataset.id){
     startCostEdit(costEl);
+    return;
+  }
+  const bookBtn = e.target.closest('.book-toggle');
+  if(bookBtn){
+    const id = bookBtn.dataset.id;
+    bookedStatus[id] = !bookedStatus[id];
+    const actName = bookBtn.closest('.act-card')?.querySelector('.act-name')?.textContent || 'an activity';
+    bookBtn.classList.toggle('booked', bookedStatus[id]);
+    bookBtn.textContent = bookedStatus[id] ? '✓ Booked' : '📌 Needs booking';
+    persistBooked();
+    renderReservationsPanel();
+    logEdit(bookedStatus[id] ? `marked "${actName}" as booked` : `marked "${actName}" as not yet booked`);
     return;
   }
 });
@@ -1237,6 +1526,27 @@ async function persistBuffers(){ try{ await window.storage.set(BUFFERS_KEY, JSON
 async function persistFlights(){ try{ await window.storage.set(FLIGHTS_KEY, JSON.stringify(FLIGHTS), true); }catch(err){} }
 async function persistFlightTimes(){ try{ await window.storage.set(FLIGHT_TIMES_KEY, JSON.stringify(flightTimes), true); }catch(err){} }
 async function persistSaveMode(){ try{ await window.storage.set(SAVEMODE_KEY, saveMode, true); }catch(err){} }
+async function persistBooked(){ try{ await window.storage.set(BOOKED_KEY, JSON.stringify(bookedStatus), true); }catch(err){} }
+async function loadBooked(){
+  try{ const r = await window.storage.get(BOOKED_KEY, true); bookedStatus = r ? JSON.parse(r.value) : {}; }catch(e){ bookedStatus = {}; }
+}
+async function persistPacking(){ try{ await window.storage.set(PACKING_KEY, JSON.stringify(packingList), true); }catch(err){} }
+async function loadPacking(){
+  try{
+    const r = await window.storage.get(PACKING_KEY, true);
+    if(r){ packingList = JSON.parse(r.value); return; }
+  }catch(e){}
+  packingList = [
+    {id:'p1', label:'Light layers (75\u201380\u00b0F daytime, cooler evenings)', checked:false},
+    {id:'p2', label:'Compact rain jacket or umbrella', checked:false},
+    {id:'p3', label:'Comfortable walking shoes', checked:false},
+    {id:'p4', label:'Portable phone battery / charger', checked:false},
+    {id:'p5', label:'Day bag that fits under a train seat', checked:false},
+    {id:'p6', label:'Passport + printed/digital Visit Japan Web QR', checked:false},
+    {id:'p7', label:'Cash (yen) for takuhaibin and small vendors', checked:false},
+    {id:'p8', label:'eSIM installed or pocket WiFi arranged', checked:false},
+  ];
+}
 
 async function loadCustomActivities(){
   try{ const r = await window.storage.get(CUSTOM_KEY, true); customActivities = r ? JSON.parse(r.value) : {}; }catch(e){ customActivities = {}; }
@@ -1258,7 +1568,7 @@ async function loadHotels(){
   try{ const r = await window.storage.get(HOTELS_KEY, true); if(r) hotels = JSON.parse(r.value); }catch(e){}
 }
 async function loadFixed(){
-  try{ const r = await window.storage.get(FIXED_KEY, true); if(r) fixedExtras = JSON.parse(r.value); }catch(e){}
+  try{ const r = await window.storage.get(FIXED_KEY, true); if(r) fixedExtras = Object.assign({}, fixedExtras, JSON.parse(r.value)); }catch(e){}
 }
 async function loadBuffers(){
   try{ const r = await window.storage.get(BUFFERS_KEY, true); if(r) buffers = JSON.parse(r.value); }catch(e){}
@@ -1371,7 +1681,7 @@ function activitiesSubtotal(){
     .reduce((s,a)=> s + a.cost, 0);
 }
 function fixedSubtotal(){
-  return fixedExtras.subway + fixedExtras.food + fixedExtras.insurance + fixedExtras.misc;
+  return fixedExtras.subway + fixedExtras.food + fixedExtras.insurance + fixedExtras.misc + (fixedExtras.luggage||0);
 }
 function budgetTotal(mode){
   const f = FLIGHTS[mode];
@@ -1434,6 +1744,7 @@ function renderBudget(){
     <tr><td>Daily subway / IC card (Tokyo &amp; Osaka)</td><td class="amt-col"><input type="number" class="budget-num-input" data-fixed="subway" min="0" step="10" value="${fixedExtras.subway}"></td></tr>
     <tr><td>Food &amp; dining (meals not itemized above)</td><td class="amt-col"><input type="number" class="budget-num-input" data-fixed="food" min="0" step="10" value="${fixedExtras.food}"></td></tr>
     <tr><td>Travel insurance</td><td class="amt-col"><input type="number" class="budget-num-input" data-fixed="insurance" min="0" step="10" value="${fixedExtras.insurance}"></td></tr>
+    <tr><td>Luggage forwarding (2 legs, 2 bags — see Luggage tab)</td><td class="amt-col"><input type="number" class="budget-num-input" data-fixed="luggage" min="0" step="5" value="${fixedExtras.luggage}"></td></tr>
     <tr><td>Misc / buffer / gifts</td><td class="amt-col"><input type="number" class="budget-num-input" data-fixed="misc" min="0" step="10" value="${fixedExtras.misc}"></td></tr>
   `;
 
@@ -1469,6 +1780,7 @@ function recomputeBudget(){
   renderBudget();
   renderSavingsState();
   renderSchedule();
+  renderReservationsPanel();
 }
 
 document.querySelectorAll('.toggle-btn[data-fare]').forEach(btn=>{
@@ -1477,6 +1789,7 @@ document.querySelectorAll('.toggle-btn[data-fare]').forEach(btn=>{
     btn.classList.add('active');
     fareMode = btn.dataset.fare;
     renderBudget();
+    renderReservationsPanel();
   });
 });
 
@@ -1514,7 +1827,7 @@ document.getElementById('budget-fixed-body').addEventListener('change', async (e
   fixedExtras[input.dataset.fixed] = Math.max(0, Number(input.value)||0);
   await persistFixed();
   recomputeBudget();
-  const labels = {subway:'Daily subway/IC card', food:'Food & dining', insurance:'Travel insurance', misc:'Misc/buffer/gifts'};
+  const labels = {subway:'Daily subway/IC card', food:'Food & dining', insurance:'Travel insurance', misc:'Misc/buffer/gifts', luggage:'Luggage forwarding'};
   logEdit(`updated ${labels[input.dataset.fixed] || 'a budget line'} to ${fmt(fixedExtras[input.dataset.fixed])}`);
 });
 
@@ -1541,8 +1854,7 @@ document.getElementById('budget-flights-body').addEventListener('change', async 
 /* ---------------- SAVINGS ---------------- */
 const START_DATE = new Date('2026-11-02T00:00:00');
 const PERIODS = 24;
-const COMBINED = 665;
-const TOTAL_PLAN = COMBINED * PERIODS;
+const CONSULTING = 350; // fixed BAG net income per period, assumed to keep flowing
 
 const periods = [];
 for(let i=0;i<PERIODS;i++){
@@ -1551,58 +1863,137 @@ for(let i=0;i<PERIODS;i++){
   periods.push({
     idx:i+1,
     date: d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
-    cumulative: COMBINED * (i+1),
   });
 }
 const periodsList = document.getElementById('periods-list');
+const headerRow = document.createElement('div');
+headerRow.className = 'period-row period-header';
+headerRow.innerHTML = `<div></div><div>Date</div><div style="text-align:right;">Contribute</div><div style="text-align:right;">Should have</div>`;
+periodsList.appendChild(headerRow);
 periods.forEach(p=>{
   const row = document.createElement('div');
   row.className = 'period-row';
   row.innerHTML = `
     <div class="pchk" data-idx="${p.idx}"></div>
     <div class="pdate">${p.date}</div>
-    <div id="pmilestone-${p.idx}">Period ${p.idx}</div>
-    <div class="pamt">${fmt(p.cumulative)}</div>
+    <div class="pamt-contrib" id="pcontrib-${p.idx}">$0</div>
+    <div class="pamt" id="pamt-${p.idx}">$0</div>
   `;
   periodsList.appendChild(row);
 });
 
 const SAVINGS_KEY = 'japan2027-savings-checked';
+const LUMPSUMS_KEY = 'japan2027-lump-sums';
 let checked = {};
+let lumpSums = []; // [{id, amount, label}]
+
 async function loadSavings(){
   try{ const r = await window.storage.get(SAVINGS_KEY, true); checked = r ? JSON.parse(r.value) : {}; }catch(e){ checked = {}; }
 }
+async function loadLumpSums(){
+  try{ const r = await window.storage.get(LUMPSUMS_KEY, true); lumpSums = r ? JSON.parse(r.value) : []; }catch(e){ lumpSums = []; }
+}
+async function persistLumpSums(){
+  try{ await window.storage.set(LUMPSUMS_KEY, JSON.stringify(lumpSums), true); }catch(e){}
+}
+function lumpSumsTotal(){
+  return lumpSums.reduce((s,l)=> s + (l.amount||0), 0);
+}
+function renderLumpList(){
+  const wrap = document.getElementById('lump-list');
+  if(!wrap) return;
+  document.getElementById('lump-section-total').textContent = fmt(lumpSumsTotal());
+  if(lumpSums.length === 0){
+    wrap.innerHTML = '<div class="lump-row"><span class="lump-row-label">None added yet.</span></div>';
+    return;
+  }
+  wrap.innerHTML = lumpSums.map(l => `
+    <div class="lump-row">
+      <span class="lump-row-label">${l.label ? l.label : 'Extra contribution'}</span>
+      <span class="lump-row-amt">${fmt(l.amount)}</span>
+      <button class="lump-remove" data-id="${l.id}" title="Remove">✕</button>
+    </div>
+  `).join('');
+}
+
+/* dynamic biweekly amount: (target - extra contributions) spread evenly across all 24 periods */
+function computeDynamicPerPeriod(target){
+  const remaining = Math.max(0, target - lumpSumsTotal());
+  return remaining / PERIODS;
+}
+
 function renderSavingsState(){
   const target = budgetTotal(saveMode);
-  let count = 0, saved = 0;
+  const perPeriod = computeDynamicPerPeriod(target);
+  const personalPerPeriod = Math.max(0, perPeriod - CONSULTING);
+
+  let count = 0, savedRegular = 0;
   document.querySelectorAll('.pchk').forEach(el=>{
     const idx = el.dataset.idx;
     const on = !!checked[idx];
     el.classList.toggle('on', on);
     el.textContent = on ? '✓' : '';
-    if(on){ count++; saved += COMBINED; }
+    if(on){ count++; savedRegular += perPeriod; }
   });
-  periods.forEach(p=>{
-    const el = document.getElementById('pmilestone-'+p.idx);
-    if(!el) return;
-    const crossedThisPeriod = p.cumulative >= target && (p.cumulative - COMBINED) < target;
-    el.innerHTML = crossedThisPeriod ? `<span class="pmilestone">★ target reached</span>` : `Period ${p.idx}`;
+  const lumpTotal = lumpSumsTotal();
+  const saved = savedRegular + lumpTotal;
+
+  periods.forEach((p,i)=>{
+    const n = i+1;
+    const cumulative = perPeriod * n;
+    const contribEl = document.getElementById('pcontrib-'+n);
+    if(contribEl) contribEl.textContent = fmt(perPeriod);
+    const amtEl = document.getElementById('pamt-'+n);
+    if(amtEl) amtEl.textContent = fmt(cumulative);
   });
+
+  document.getElementById('sav-biweekly').textContent = fmt(perPeriod);
+  document.getElementById('biweekly-detail').textContent =
+    `That's roughly ${fmt(personalPerPeriod)} personal + ${fmt(CONSULTING)} BAG consulting = ${fmt(perPeriod)} every two weeks — recalculated live from the current target${lumpTotal>0 ? ' minus '+fmt(lumpTotal)+' in extra contributions already banked' : ''}.`;
   document.getElementById('sav-saved').textContent = fmt(saved);
   document.getElementById('sav-target').textContent = fmt(target);
   document.getElementById('sav-remaining').textContent = fmt(Math.max(0, target - saved));
   document.getElementById('sav-periods').textContent = count + ' / ' + PERIODS;
+  document.getElementById('sav-lump-total').textContent = fmt(lumpTotal);
   const pct = Math.min(100, Math.round((saved/Math.max(target,1))*100));
   document.getElementById('sav-progress-bar').style.width = pct + '%';
-
-  const marksWrap = document.getElementById('sav-marks');
-  marksWrap.innerHTML = '';
-  const pctMark = Math.min(96, (target/TOTAL_PLAN)*100);
-  const s = document.createElement('span');
-  s.style.left = pctMark + '%';
-  s.textContent = 'target ' + fmt(target);
-  marksWrap.appendChild(s);
+  renderLumpList();
 }
+
+/* lump sum add/remove UI */
+document.getElementById('add-lump-btn').addEventListener('click', ()=>{
+  document.getElementById('add-lump-btn').style.display = 'none';
+  document.getElementById('lump-form').style.display = 'flex';
+});
+document.getElementById('lump-cancel-btn').addEventListener('click', ()=>{
+  document.getElementById('lump-form').style.display = 'none';
+  document.getElementById('add-lump-btn').style.display = 'block';
+  document.getElementById('lump-amount').value = '';
+  document.getElementById('lump-label').value = '';
+});
+document.getElementById('lump-save-btn').addEventListener('click', async ()=>{
+  const amount = Math.max(0, Number(document.getElementById('lump-amount').value) || 0);
+  const label = document.getElementById('lump-label').value.trim();
+  if(amount <= 0){ document.getElementById('lump-amount').focus(); return; }
+  lumpSums.push({ id:'lump'+Date.now(), amount, label });
+  await persistLumpSums();
+  document.getElementById('lump-form').style.display = 'none';
+  document.getElementById('add-lump-btn').style.display = 'block';
+  document.getElementById('lump-amount').value = '';
+  document.getElementById('lump-label').value = '';
+  renderSavingsState();
+  logEdit(`added an extra contribution of ${fmt(amount)}${label ? ' ('+label+')' : ''}`);
+});
+document.getElementById('lump-list').addEventListener('click', async (e)=>{
+  const btn = e.target.closest('.lump-remove');
+  if(!btn) return;
+  const removed = lumpSums.find(l=>l.id===btn.dataset.id);
+  lumpSums = lumpSums.filter(l=>l.id !== btn.dataset.id);
+  await persistLumpSums();
+  renderSavingsState();
+  logEdit(`removed an extra contribution of ${removed?fmt(removed.amount):''}`);
+});
+
 periodsList.addEventListener('click', async (e)=>{
   const box = e.target.closest('.pchk');
   if(!box) return;
@@ -1680,9 +2071,98 @@ function renderLog(){
   ).join('');
 }
 
+/* ---------------- packing checklist ---------------- */
+function renderPackingList(){
+  const wrap = document.getElementById('packing-list');
+  if(!wrap) return;
+  const checkedCount = packingList.filter(p=>p.checked).length;
+  document.getElementById('packing-progress').textContent = checkedCount + ' / ' + packingList.length;
+  if(packingList.length === 0){
+    wrap.innerHTML = '<div class="lump-row"><span class="lump-row-label">Nothing here yet.</span></div>';
+    return;
+  }
+  wrap.innerHTML = packingList.map(p => `
+    <div class="reservation-row">
+      <div class="rchk ${p.checked?'on':''}" data-id="${p.id}">${p.checked?'✓':''}</div>
+      <div class="rname">${p.label}</div>
+      <button class="lump-remove" data-id="${p.id}" title="Remove">✕</button>
+    </div>
+  `).join('');
+}
+document.getElementById('packing-list').addEventListener('click', async (e)=>{
+  const box = e.target.closest('.rchk');
+  if(box){
+    const item = packingList.find(p=>p.id===box.dataset.id);
+    if(item) item.checked = !item.checked;
+    await persistPacking();
+    renderPackingList();
+    return;
+  }
+  const rm = e.target.closest('.lump-remove');
+  if(rm){
+    const removed = packingList.find(p=>p.id===rm.dataset.id);
+    packingList = packingList.filter(p=>p.id !== rm.dataset.id);
+    await persistPacking();
+    renderPackingList();
+    if(removed) logEdit(`removed "${removed.label}" from the packing list`);
+    return;
+  }
+});
+document.getElementById('add-packing-btn').addEventListener('click', ()=>{
+  document.getElementById('add-packing-btn').style.display = 'none';
+  document.getElementById('packing-form').style.display = 'flex';
+});
+document.getElementById('packing-cancel-btn').addEventListener('click', ()=>{
+  document.getElementById('packing-form').style.display = 'none';
+  document.getElementById('add-packing-btn').style.display = 'block';
+  document.getElementById('packing-input').value = '';
+});
+document.getElementById('packing-save-btn').addEventListener('click', async ()=>{
+  const input = document.getElementById('packing-input');
+  const label = input.value.trim();
+  if(!label){ input.focus(); return; }
+  packingList.push({id:'p'+Date.now(), label, checked:false});
+  await persistPacking();
+  document.getElementById('packing-form').style.display = 'none';
+  document.getElementById('add-packing-btn').style.display = 'block';
+  input.value = '';
+  renderPackingList();
+  logEdit(`added "${label}" to the packing list`);
+});
+
+/* ---------------- data export/backup ---------------- */
+const ALL_SHARED_KEYS = [CUSTOM_KEY, DECISIONS_KEY, COST_OVERRIDES_KEY, IMAGES_KEY, HOTELS_KEY, FIXED_KEY, BUFFERS_KEY, FLIGHTS_KEY, FLIGHT_TIMES_KEY, SAVINGS_KEY, LUMPSUMS_KEY, LOG_KEY, BOOKED_KEY, PACKING_KEY];
+async function exportAllData(){
+  const out = {};
+  for(const key of ALL_SHARED_KEYS){
+    try{
+      const r = await window.storage.get(key, true);
+      out[key] = r ? JSON.parse(r.value) : null;
+    }catch(e){ out[key] = null; }
+  }
+  out._exportedAt = new Date().toISOString();
+  const blob = new Blob([JSON.stringify(out, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'japan-2027-trip-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+document.getElementById('export-data-btn').addEventListener('click', async (e)=>{
+  const btn = e.target;
+  const original = btn.textContent;
+  btn.textContent = 'Gathering data…';
+  btn.disabled = true;
+  try{ await exportAllData(); }
+  finally{ btn.textContent = original; btn.disabled = false; }
+});
+
 /* ---------------- boot sequence ---------------- */
 (async function boot(){
-  await Promise.all([loadCostOverrides(), loadImages(), loadHotels(), loadFixed(), loadBuffers(), loadFlights(), loadFlightTimes(), loadSaveMode(), loadIdentity(), loadLog()]);
+  await Promise.all([loadCostOverrides(), loadImages(), loadHotels(), loadFixed(), loadBuffers(), loadFlights(), loadFlightTimes(), loadSaveMode(), loadIdentity(), loadLog(), loadBooked(), loadPacking()]);
   renderLog();
   if(!myName) showIdentityModal();
   document.getElementById('ft-tpa-depart').value = flightTimes.tpaDepart;
@@ -1710,13 +2190,21 @@ function renderLog(){
       const costSpan = card.querySelector('.act-cost[data-id]');
       if(costSpan) costSpan.textContent = costOverrides[id] > 0 ? fmt(costOverrides[id]) : 'Free';
     }
+    const bookBtn = card.querySelector('.book-toggle');
+    if(bookBtn && bookedStatus[id]){
+      bookBtn.classList.add('booked');
+      bookBtn.textContent = '✓ Booked';
+    }
   });
+  renderReservationsPanel();
   document.querySelector(`.toggle-btn[data-savemode="${saveMode}"]`).classList.add('active');
   document.querySelector(`.toggle-btn[data-savemode="${saveMode==='premium'?'business':'premium'}"]`).classList.remove('active');
   renderBudget();
   await loadSavings();
+  await loadLumpSums();
   renderSavingsState();
   renderSchedule();
+  renderPackingList();
   setTimeout(spawnPlane, 500);
 })();
 </script>
