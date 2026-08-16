@@ -173,8 +173,8 @@ body{
 .act-mini-row:last-child{border-bottom:none;}
 .act-mini-day{font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:var(--indigo-soft);color:var(--indigo);padding:2px 7px;border-radius:10px;flex-shrink:0;}
 .act-mini-name{flex:1;}
-.act-mini-link{margin-left:6px;color:var(--persimmon);text-decoration:none;font-size:12px;vertical-align:middle;}
-.act-mini-link:hover{text-decoration:underline;}
+.act-mini-link{color:var(--ink);text-decoration:underline;text-decoration-color:var(--persimmon);text-decoration-thickness:1.5px;text-underline-offset:2px;}
+.act-mini-link:hover{color:var(--persimmon);}
 .act-mini-cost{font-family:'IBM Plex Mono',monospace;color:var(--suica);font-weight:600;font-size:12.5px;}
 .act-mini-remove{background:none;border:1px solid var(--line);border-radius:12px;width:22px;height:22px;cursor:pointer;color:var(--ink-soft);font-size:10.5px;flex-shrink:0;}
 .act-mini-remove:hover{color:var(--alert);border-color:var(--alert);}
@@ -900,7 +900,7 @@ function renderMiniActivities(id){
       <span class="act-mini-day">Day ${a.day}</span>
       <span class="act-mini-name">${a.mustDo
         ? `<button class="act-mini-mustdo" data-id="${id}" data-act="${a.id}" title="Click to unmark as must-do">★ Must-do</button> `
-        : `<button class="act-mini-mustdo-off" data-id="${id}" data-act="${a.id}" title="Click to mark as must-do">☆</button> `}${a.name}${a.link ? `<a class="act-mini-link" href="${a.link.replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer" title="${a.link.replace(/"/g,'&quot;')}">🔗</a>` : ''}</span>
+        : `<button class="act-mini-mustdo-off" data-id="${id}" data-act="${a.id}" title="Click to mark as must-do">☆</button> `}${a.link ? `<a class="act-mini-link" href="${a.link.replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer">${a.name}</a>` : a.name}</span>
       <span class="act-mini-cost">${a.cost>0?fmt(a.cost):'Free'}</span>
       <button class="act-mini-edit" data-id="${id}" data-act="${a.id}" title="Edit">✎</button>
       <button class="act-mini-remove" data-id="${id}" data-act="${a.id}">✕</button>
