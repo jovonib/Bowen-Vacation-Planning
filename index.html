@@ -127,15 +127,54 @@ body{
 .field-card .car-row input[type="number"]{width:90px;}
 
 .act-mini-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:13px;}
-.act-mini-thumb{width:44px;height:44px;object-fit:cover;border-radius:12px;flex-shrink:0;background:var(--indigo-soft);}
-.act-mini-thumb-empty{display:flex;align-items:center;justify-content:center;font-size:18px;}
+.act-mini-thumb{width:68px;height:68px;object-fit:cover;border-radius:12px;flex-shrink:0;background:var(--indigo-soft);}
+.act-mini-edit{background:none;border:1px solid var(--line);border-radius:12px;width:22px;height:22px;cursor:pointer;color:var(--ink-soft);font-size:11px;flex-shrink:0;}
+.act-mini-edit:hover{color:var(--persimmon);border-color:var(--persimmon);}
+.act-edit-row{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:12px;border-bottom:1px solid var(--line);
+  background:var(--paper);
+}
+.act-edit-field{display:flex;flex-direction:column;gap:3px;}
+.act-edit-field label{font-size:10.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.02em;}
+.act-edit-field input{
+  font-family:'Poppins',sans-serif;font-size:13px;padding:6px 8px;border:1px solid var(--line);
+  border-radius:8px;background:var(--paper-card);color:var(--ink);
+}
+.act-edit-field.grow{flex:1;min-width:140px;}
+.act-edit-field.day-f input, .act-edit-field.cost-f input{width:64px;}
+.act-edit-thumb-preview{width:68px;height:68px;object-fit:cover;border-radius:12px;background:var(--indigo-soft);flex-shrink:0;}
+.act-edit-actions{display:flex;gap:6px;margin-left:auto;}
+.act-photo-upload{font-family:'Poppins',sans-serif;font-size:12px;max-width:190px;}
+.act-photo-remove{
+  background:none;border:1px solid var(--line);border-radius:10px;padding:6px 10px;
+  font-family:'Poppins',sans-serif;font-size:11.5px;color:var(--ink-soft);cursor:pointer;align-self:flex-end;
+}
+.act-photo-remove:hover{color:var(--alert);border-color:var(--alert);}
+.act-edit-save, .act-edit-cancel{
+  border-radius:10px;padding:7px 14px;font-family:'Poppins',sans-serif;font-weight:600;font-size:12.5px;
+  cursor:pointer;border:1px solid var(--line);
+}
+.act-edit-save{background:var(--persimmon);color:#fff;border-color:var(--persimmon);}
+.act-edit-cancel{background:var(--paper-card);color:var(--ink-soft);}
+.act-mini-thumb-empty{display:flex;align-items:center;justify-content:center;font-size:26px;}
 .act-mini-mustdo{
   display:inline-block;background:var(--gold);color:#fff;font-size:9.5px;font-weight:700;
   padding:1px 6px;border-radius:10px;letter-spacing:0.03em;margin-right:4px;vertical-align:middle;
+  border:none;cursor:pointer;font-family:'Poppins',sans-serif;
 }
+.act-mini-mustdo-off{
+  display:inline-block;background:none;color:var(--ink-soft);font-size:13px;
+  border:none;cursor:pointer;vertical-align:middle;margin-right:4px;opacity:0.45;padding:0;
+}
+.act-mini-mustdo-off:hover{opacity:1;color:var(--gold);}
+.act-edit-checkbox-field{display:flex;align-items:center;gap:6px;padding-bottom:7px;}
+.act-edit-checkbox-field label{font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;}
+.act-edit-checkbox-field input{width:16px;height:16px;cursor:pointer;}
 .act-mini-row:last-child{border-bottom:none;}
 .act-mini-day{font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:var(--indigo-soft);color:var(--indigo);padding:2px 7px;border-radius:10px;flex-shrink:0;}
 .act-mini-name{flex:1;}
+.act-mini-link{margin-left:6px;color:var(--persimmon);text-decoration:none;font-size:12px;vertical-align:middle;}
+.act-mini-link:hover{text-decoration:underline;}
 .act-mini-cost{font-family:'IBM Plex Mono',monospace;color:var(--suica);font-weight:600;font-size:12.5px;}
 .act-mini-remove{background:none;border:1px solid var(--line);border-radius:12px;width:22px;height:22px;cursor:pointer;color:var(--ink-soft);font-size:10.5px;flex-shrink:0;}
 .act-mini-remove:hover{color:var(--alert);border-color:var(--alert);}
@@ -451,6 +490,36 @@ function fmt(n){ return '$' + Math.round(n||0).toLocaleString('en-US'); }
 function wmImg(filename, width){
   return 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(filename) + (width? '?width='+width : '');
 }
+function resolvePhotoSrc(a, width){
+  if(a.photoData) return a.photoData; // uploaded photo, stored as a compressed data URI
+  if(a.file){
+    if(/^https?:\/\//i.test(a.file)) return a.file; // a direct image URL the user pasted
+    return wmImg(a.file, width); // treat as a Wikimedia Commons filename
+  }
+  return null;
+}
+function resizeImageFile(file, maxDim, quality){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w > h && w > maxDim){ h = Math.round(h*maxDim/w); w = maxDim; }
+        else if(h >= w && h > maxDim){ w = Math.round(w*maxDim/h); h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = ev.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+let pendingPhotoUploads = {}; // activityId -> data URI (or 'REMOVE') staged during an in-progress edit
 
 /* ---------------- candidate destinations ---------------- */
 const CANDIDATE_CITIES = [
@@ -778,6 +847,7 @@ function renderCityPanel(id){
   `;
   renderMiniActivities(id);
 }
+let editingActId = null; // 'destId::activityId' of the row currently in edit mode, or null
 function renderMiniActivities(id){
   const wrap = document.getElementById('acts-'+id);
   if(!wrap) return;
@@ -787,17 +857,55 @@ function renderMiniActivities(id){
     wrap.innerHTML = '<p class="footnote" style="margin:10px 12px;">Nothing added yet.</p>';
     return;
   }
-  wrap.innerHTML = acts.map(a=>`
+  wrap.innerHTML = acts.map(a=>{
+    const key = id+'::'+a.id;
+    if(editingActId === key){
+      const previewSrc = resolvePhotoSrc(a, 220);
+      return `
+      <div class="act-edit-row" data-id="${id}" data-act="${a.id}">
+        ${previewSrc
+          ? `<img class="act-edit-thumb-preview" id="act-edit-preview-${a.id}" src="${previewSrc}" alt="" onerror="this.style.display='none';">`
+          : `<span class="act-mini-thumb act-mini-thumb-empty" id="act-edit-preview-${a.id}">📍</span>`}
+        <div class="act-edit-field day-f"><label>Day</label><input type="number" min="1" name="day" value="${a.day||1}"></div>
+        <div class="act-edit-field grow"><label>Name</label><input type="text" name="name" value="${(a.name||'').replace(/"/g,'&quot;')}"></div>
+        <div class="act-edit-field cost-f"><label>Cost $</label><input type="number" min="0" name="cost" value="${a.cost||0}"></div>
+        <div class="act-edit-checkbox-field">
+          <input type="checkbox" id="mustdo-${a.id}" name="mustDo" ${a.mustDo ? 'checked' : ''}>
+          <label for="mustdo-${a.id}">★ Must-do</label>
+        </div>
+        <div class="act-edit-field grow">
+          <label>Upload a photo</label>
+          <input type="file" class="act-photo-upload" accept="image/*" data-act="${a.id}">
+        </div>
+        <div class="act-edit-field grow">
+          <label>...or paste an image URL / Wikimedia filename</label>
+          <input type="text" name="file" placeholder="e.g. https://... or Golden Gate Bridge.jpg" value="${(a.file||'').replace(/"/g,'&quot;')}">
+        </div>
+        <div class="act-edit-field grow">
+          <label>Link (booking site, menu, more info)</label>
+          <input type="text" name="link" placeholder="e.g. https://..." value="${(a.link||'').replace(/"/g,'&quot;')}">
+        </div>
+        <button class="act-photo-remove" data-act="${a.id}" type="button">Remove photo</button>
+        <div class="act-edit-actions">
+          <button class="act-edit-save" data-id="${id}" data-act="${a.id}">Save</button>
+          <button class="act-edit-cancel" data-id="${id}" data-act="${a.id}">Cancel</button>
+        </div>
+      </div>`;
+    }
+    return `
     <div class="act-mini-row">
-      ${a.file
-        ? `<img class="act-mini-thumb" loading="lazy" src="${wmImg(a.file,160)}" alt="" onerror="this.style.display='none';">`
+      ${resolvePhotoSrc(a, 220)
+        ? `<img class="act-mini-thumb" loading="lazy" src="${resolvePhotoSrc(a, 220)}" alt="" onerror="this.style.display='none';">`
         : `<span class="act-mini-thumb act-mini-thumb-empty">📍</span>`}
       <span class="act-mini-day">Day ${a.day}</span>
-      <span class="act-mini-name">${a.mustDo ? '<span class="act-mini-mustdo">★ Must-do</span> ' : ''}${a.name}</span>
+      <span class="act-mini-name">${a.mustDo
+        ? `<button class="act-mini-mustdo" data-id="${id}" data-act="${a.id}" title="Click to unmark as must-do">★ Must-do</button> `
+        : `<button class="act-mini-mustdo-off" data-id="${id}" data-act="${a.id}" title="Click to mark as must-do">☆</button> `}${a.name}${a.link ? `<a class="act-mini-link" href="${a.link.replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer" title="${a.link.replace(/"/g,'&quot;')}">🔗</a>` : ''}</span>
       <span class="act-mini-cost">${a.cost>0?fmt(a.cost):'Free'}</span>
+      <button class="act-mini-edit" data-id="${id}" data-act="${a.id}" title="Edit">✎</button>
       <button class="act-mini-remove" data-id="${id}" data-act="${a.id}">✕</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 function refreshDestination(id){
   renderCityPanel(id);
@@ -835,6 +943,87 @@ document.body.addEventListener('click', async (e)=>{
     logEdit(`added "${name}" to ${cityName} (Day ${day})`);
     return;
   }
+  const mustDoBtn = e.target.closest('.act-mini-mustdo, .act-mini-mustdo-off');
+  if(mustDoBtn){
+    const id = mustDoBtn.dataset.id;
+    const actId = mustDoBtn.dataset.act;
+    const act = (destPlans[id].activities||[]).find(a=>a.id===actId);
+    if(act){
+      act.mustDo = !act.mustDo;
+      await persistDestPlans();
+      refreshDestination(id);
+      const cityName = CANDIDATE_CITIES.find(c=>c.id===id).name;
+      logEdit(`marked "${act.name}" ${act.mustDo ? 'as a must-do' : 'as optional'} in ${cityName}`);
+    }
+    return;
+  }
+  const editBtn = e.target.closest('.act-mini-edit');
+  if(editBtn){
+    editingActId = editBtn.dataset.id + '::' + editBtn.dataset.act;
+    renderMiniActivities(editBtn.dataset.id);
+    return;
+  }
+  const cancelBtn = e.target.closest('.act-edit-cancel');
+  if(cancelBtn){
+    delete pendingPhotoUploads[cancelBtn.dataset.act];
+    editingActId = null;
+    renderMiniActivities(cancelBtn.dataset.id);
+    return;
+  }
+  const remPhotoBtn = e.target.closest('.act-photo-remove');
+  if(remPhotoBtn){
+    const actId = remPhotoBtn.dataset.act;
+    pendingPhotoUploads[actId] = 'REMOVE';
+    const preview = document.getElementById('act-edit-preview-'+actId);
+    if(preview){
+      const span = document.createElement('span');
+      span.className = 'act-mini-thumb act-mini-thumb-empty';
+      span.id = preview.id;
+      span.textContent = '📍';
+      preview.replaceWith(span);
+    }
+    return;
+  }
+  const saveBtn = e.target.closest('.act-edit-save');
+  if(saveBtn){
+    const id = saveBtn.dataset.id;
+    const actId = saveBtn.dataset.act;
+    const row = saveBtn.closest('.act-edit-row');
+    const day = Math.max(1, Number(row.querySelector('[name="day"]').value) || 1);
+    const name = row.querySelector('[name="name"]').value.trim();
+    const cost = Math.max(0, Number(row.querySelector('[name="cost"]').value) || 0);
+    const fileVal = row.querySelector('[name="file"]').value.trim();
+    const linkVal = row.querySelector('[name="link"]').value.trim();
+    const mustDoVal = row.querySelector('[name="mustDo"]').checked;
+    if(!name) return;
+    const act = (destPlans[id].activities||[]).find(a=>a.id===actId);
+    if(act){
+      act.day = day; act.name = name; act.cost = cost;
+      act.mustDo = mustDoVal;
+      if(linkVal) act.link = linkVal; else delete act.link;
+      const pending = pendingPhotoUploads[actId];
+      if(pending === 'REMOVE'){
+        if(fileVal){ act.file = fileVal; delete act.photoData; }
+        else { delete act.file; delete act.photoData; }
+      } else if(pending){
+        act.photoData = pending;
+        delete act.file;
+      } else if(fileVal){
+        act.file = fileVal;
+        delete act.photoData;
+      } else {
+        delete act.file;
+        delete act.photoData;
+      }
+    }
+    delete pendingPhotoUploads[actId];
+    editingActId = null;
+    await persistDestPlans();
+    refreshDestination(id);
+    const cityName = CANDIDATE_CITIES.find(c=>c.id===id).name;
+    logEdit(`edited "${name}" in ${cityName}`);
+    return;
+  }
   const rm = e.target.closest('.act-mini-remove');
   if(rm){
     const id = rm.dataset.id;
@@ -848,7 +1037,56 @@ document.body.addEventListener('click', async (e)=>{
     return;
   }
 });
+document.body.addEventListener('input', (e)=>{
+  const el = e.target;
+  if(el.name === 'file' && el.closest('.act-edit-row')){
+    const row = el.closest('.act-edit-row');
+    const actId = row.dataset.act;
+    const preview = document.getElementById('act-edit-preview-'+actId);
+    if(!preview) return;
+    const val = el.value.trim();
+    if(val && preview.tagName === 'IMG'){
+      preview.src = wmImg(val, 220);
+    } else if(val && preview.tagName === 'SPAN'){
+      const img = document.createElement('img');
+      img.className = 'act-edit-thumb-preview';
+      img.id = preview.id;
+      img.src = wmImg(val, 220);
+      img.onerror = function(){ this.style.display='none'; };
+      preview.replaceWith(img);
+    } else if(!val && preview.tagName === 'IMG'){
+      const span = document.createElement('span');
+      span.className = 'act-mini-thumb act-mini-thumb-empty';
+      span.id = preview.id;
+      span.textContent = '📍';
+      preview.replaceWith(span);
+    }
+  }
+});
 document.body.addEventListener('change', async (e)=>{
+  const uploadEl = e.target.closest('.act-photo-upload');
+  if(uploadEl){
+    const actId = uploadEl.dataset.act;
+    const file = uploadEl.files[0];
+    if(!file) return;
+    try{
+      const dataUrl = await resizeImageFile(file, 900, 0.72);
+      pendingPhotoUploads[actId] = dataUrl;
+      const preview = document.getElementById('act-edit-preview-'+actId);
+      if(preview){
+        if(preview.tagName === 'IMG'){
+          preview.src = dataUrl;
+        } else {
+          const img = document.createElement('img');
+          img.className = 'act-edit-thumb-preview';
+          img.id = preview.id;
+          img.src = dataUrl;
+          preview.replaceWith(img);
+        }
+      }
+    } catch(err){ console.error('Photo processing failed', err); }
+    return;
+  }
   const el = e.target;
   const id = el.dataset.id;
   if(!id || !CANDIDATE_CITIES.find(c=>c.id===id)) return;
